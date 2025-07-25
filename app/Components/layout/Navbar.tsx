@@ -5,7 +5,21 @@ import ThemeSwitcher from "../Fragments/ThemeSwitcher/ThemeSwitcher";
 import { AnimatePresence, motion } from "framer-motion";
 
 // Button component (assumed to be available in your project)
-const Button = ({ href, className = "", children, onClick, ...props }) => {
+type ButtonProps = {
+  href?: string;
+  className?: string;
+  children: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
+  [key: string]: any; // untuk props tambahan seperti `id`, `target`, dll.
+};
+
+const Button = ({
+  href,
+  className = "",
+  children,
+  onClick,
+  ...props
+}: ButtonProps) => {
   if (href) {
     return (
       <a
@@ -58,7 +72,7 @@ const Navbar = () => {
     setIsContactFormOpen(false);
   };
 
-  const handleContactSubmit = (e) => {
+  const handleContactSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     const to = "jejakzaidan@gmail.com";
@@ -68,7 +82,6 @@ const Navbar = () => {
 
     window.open(gmailLink, "_blank");
 
-    // Reset form dan tutup
     setTimeout(() => {
       setNama("");
       setPesan("");
@@ -78,7 +91,7 @@ const Navbar = () => {
 
   // Handle escape key for both menu and contact form
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (isContactFormOpen) {
           closeContactForm();

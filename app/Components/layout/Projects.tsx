@@ -9,6 +9,12 @@ import ScrollReveal from "../Fragments/ScrollReveal/ScrollReveal";
 import CountUp from "../Fragments/CountUp/CountUp";
 import AnimatedContent from "../Fragments/AnimatedContent/AnimatedContent";
 
+type Project = {
+  title: string;
+  description: string;
+  image: string;
+};
+
 const ProjectShowcase = () => {
   const projects = [
     {
@@ -52,7 +58,12 @@ const ProjectShowcase = () => {
   );
 };
 
-const ProjectCard = ({ project, index }) => {
+type ProjectCardProps = {
+  project: Project;
+  index: number;
+};
+
+const ProjectCard = ({ project, index }: ProjectCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -146,10 +157,12 @@ const Projects = () => {
     gsap.registerPlugin(ScrollTrigger);
 
     const lenis = new Lenis();
-    function raf(time) {
+
+    function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
+
     requestAnimationFrame(raf);
     lenis.on("scroll", ScrollTrigger.update);
 
