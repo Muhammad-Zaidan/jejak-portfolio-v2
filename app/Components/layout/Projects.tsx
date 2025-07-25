@@ -13,51 +13,31 @@ const ProjectShowcase = () => {
   const projects = [
     {
       id: 1,
-      title: "FinTech Platform",
+      title: "Logs Apparel",
       description:
-        "Revolutionary financial technology platform with AI-driven insights, seamless user experience, and enterprise-grade security features.",
-      image: "https://picsum.photos/1920/1080?random=1",
-      gradient: "from-blue-900/30 via-blue-800/60 to-blue-900/30",
+        "A customer landing page that directs customers to various Logs Apparel social media channels, plus brand and product information from Logs Apparel. Using Bootstrap as a styling framework.",
+      image: "assets/projects/logs.svg",
     },
     {
       id: 2,
-      title: "Smart Office Hub",
+      title: "My previous portfolio",
       description:
-        "Modern workspace management system integrating IoT devices, meeting room booking, and employee productivity analytics in one unified platform.",
-      image: "https://picsum.photos/1920/1080?random=2",
-      gradient: "from-red-900/30 via-red-800/60 to-red-900/30",
+        "A portfolio page with a clean, modern look, with sections designed to build trust with users. Tailwind is used as the styling framework.",
+      image: "assets/projects/prevport.svg",
     },
     {
       id: 3,
-      title: "E-Commerce Suite",
+      title: "Company profile PT.DAB",
       description:
-        "Complete e-commerce solution featuring advanced inventory management, multi-payment gateway integration, real-time sales analytics.",
-      image: "https://picsum.photos/1920/1080?random=3",
-      gradient: "from-green-900/30 via-green-800/60 to-green-900/30",
+        "A company profile page that showcases the company's expertise, vision, mission, products, and personality through flexible, dynamic content. It uses Bootstrap as its styling framework.",
+      image: "assets/projects/DAB.svg",
     },
     {
       id: 4,
-      title: "AI Analytics Dashboard",
+      title: "Kowoyo",
       description:
-        "Intelligent business analytics platform powered by machine learning algorithms for predictive insights and automated reporting systems.",
-      image: "https://picsum.photos/1920/1080?random=4",
-      gradient: "from-orange-900/30 via-orange-800/60 to-orange-900/30",
-    },
-    {
-      id: 5,
-      title: "Mobile Banking App",
-      description:
-        "Secure and intuitive mobile banking application with biometric authentication and real-time transaction monitoring.",
-      image: "https://picsum.photos/1920/1080?random=5",
-      gradient: "from-purple-900/30 via-purple-800/60 to-purple-900/30",
-    },
-    {
-      id: 6,
-      title: "Healthcare Portal",
-      description:
-        "Comprehensive healthcare management system connecting patients, doctors, and medical facilities with telemedicine capabilities.",
-      image: "https://picsum.photos/1920/1080?random=6",
-      gradient: "from-teal-900/30 via-teal-800/60 to-teal-900/30",
+        "A simple e-commerce platform for marketing and renting boarding rooms, complete with internal boarding house management features such as announcements to residents, rental records, and owner-occupied room management. Built using Laravel and Filament.",
+      image: "assets/projects/kowoyo.svg",
     },
   ];
 
