@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Canvas, extend, useFrame } from "@react-three/fiber";
@@ -20,8 +21,8 @@ import { MeshLineGeometry, MeshLineMaterial } from "meshline";
 import * as THREE from "three";
 
 // replace with your own imports, see the usage snippet for details
-const cardGLB = "assets/lanyard/card.glb";
-const lanyard = "assets/lanyard/lanyard.png";
+const cardGLB = "/assets/lanyard/card.glb";
+const lanyard = "/assets/lanyard/lanyard.png";
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 

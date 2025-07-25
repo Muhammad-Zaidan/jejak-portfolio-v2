@@ -10,7 +10,7 @@ export default function Contact() {
       {/* Layout 3 kolom di layar besar */}
       <div className="w-full h-full grid grid-cols-1 lg:grid-cols-[50%_50%]">
         {/* Middle - Lanyard */}
-        <div className="bg-[#0A0A0A] relative flex items-center justify-center z-10">
+        <div className="bg-[#0A0A0A] relative flex items-center justify-center z-[99999]">
           <Lanyard position={[0, 0, 17]} gravity={[0, -40, 0]} />
         </div>
 
