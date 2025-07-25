@@ -9,7 +9,6 @@ import { useMediaQuery } from "./hooks/useMediaQuery";
 import ResponsiveAlert from "./Components/Fragments/ResponsiveAlert/ResponsiveAlert";
 
 // ... import komponen lainnya yang sudah ada
-import Image from "next/image";
 import ScrollVelocity from "./Components/Fragments/ScrollVelocity/ScrollVelocity";
 import Projects from "./Components/layout/Projects";
 import Contacts from "./Components/layout/Contact";
