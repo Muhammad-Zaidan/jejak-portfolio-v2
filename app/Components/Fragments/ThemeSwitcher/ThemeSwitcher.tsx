@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 const ThemeSwitcher = () => {
   const [isDark, setIsDark] = useState(false);
@@ -8,22 +8,24 @@ const ThemeSwitcher = () => {
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem('color-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const stored = localStorage.getItem("color-theme");
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
 
-    const shouldUseDark = stored === 'dark' || (!stored && prefersDark);
+    const shouldUseDark = stored === "dark" || (!stored && prefersDark);
     setIsDark(shouldUseDark);
 
-    document.documentElement.classList.toggle('dark', shouldUseDark);
-    document.documentElement.classList.toggle('light', !shouldUseDark);
+    document.documentElement.classList.toggle("dark", shouldUseDark);
+    document.documentElement.classList.toggle("light", !shouldUseDark);
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = isDark ? 'light' : 'dark';
-    localStorage.setItem('color-theme', newTheme);
-    document.documentElement.classList.toggle('dark', !isDark);
-    document.documentElement.classList.toggle('light', isDark);
-    setIsDark(!isDark);
+    const newTheme = isDark ? "light" : "dark";
+    localStorage.setItem("color-theme", newTheme);
+    document.documentElement.classList.toggle("dark", !isDark);
+    document.documentElement.classList.toggle("light", isDark);
+    alert("Trying to get blind?");
   };
 
   if (!mounted) return null;
@@ -32,12 +34,12 @@ const ThemeSwitcher = () => {
     <button
       onClick={toggleTheme}
       className={`relative flex items-center gap-2  rounded-full p-2 transition-all duration-500 
-      ${isDark ? ' text-gray-300 bg-gray-800' : 'text-gray-800 bg-white/80'} shadow-lg`}
+      ${isDark ? " text-gray-300 bg-gray-800" : "text-gray-800 bg-white/80"} shadow-lg`}
       aria-label="Toggle Theme"
     >
       {/* Sun icon */}
       <svg
-        className={`w-5 h-5 transition-opacity duration-500 ${isDark ? 'opacity-0 scale-90' : 'opacity-100 scale-100'}`}
+        className={`w-5 h-5 transition-opacity duration-500 ${isDark ? "opacity-0 scale-90" : "opacity-100 scale-100"}`}
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -50,7 +52,7 @@ const ThemeSwitcher = () => {
 
       {/* Moon icon */}
       <svg
-        className={`w-5 h-5 absolute transition-opacity duration-500 ${isDark ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
+        className={`w-5 h-5 absolute transition-opacity duration-500 ${isDark ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
         fill="currentColor"
         viewBox="0 0 20 20"
       >

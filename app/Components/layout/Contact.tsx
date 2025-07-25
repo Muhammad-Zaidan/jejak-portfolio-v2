@@ -6,7 +6,7 @@ import AnimatedContent from "../Fragments/AnimatedContent/AnimatedContent";
 
 export default function Contact() {
   return (
-    <div className="w-full h-screen bg-[#161616] overflow-hidden">
+    <div className="w-full min-h-screen bg-[#161616] overflow-hidden">
       {/* Layout 3 kolom di layar besar */}
       <div className="w-full h-full grid grid-cols-1 lg:grid-cols-[50%_50%]">
         {/* Middle - Lanyard */}
@@ -15,7 +15,7 @@ export default function Contact() {
         </div>
 
         {/* Right - Contact Info */}
-        <div className="bg-[#0A0A0A] flex flex-col relative px-12 py-20">
+        <div className="bg-[#0A0A0A] flex flex-col relative px-12 lg:py-20 py-5">
           <div className="mb-20">
             <AnimatedContent
               distance={80}
@@ -29,7 +29,7 @@ export default function Contact() {
               threshold={0}
               delay={0.2}
             >
-              <h1 className="text-white text-5xl font-black leading-tight mb-1 tracking-tight uppercase">
+              <h1 className="text-white lg:text-5xl text-xl font-black leading-tight mb-1 tracking-tight uppercase">
                 Start big steps from small discussions! Get in touch?
               </h1>
             </AnimatedContent>

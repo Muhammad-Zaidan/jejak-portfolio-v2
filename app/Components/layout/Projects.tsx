@@ -258,7 +258,7 @@ const Projects = () => {
   return (
     <>
       <main className="overflow-hidden bg-[#0A0A0A] text-white">
-        <section className="w-full h-screen bg-cover bg-center flex items-center justify-center max-w-4xl mx-auto">
+        <section className="w-full h-screen bg-cover bg-center flex items-center justify-center max-w-4xl mx-auto px-6 lg:px-0">
           <ScrollReveal
             baseOpacity={0.2}
             enableBlur={true}
@@ -365,7 +365,7 @@ const Projects = () => {
           <div className="max-w-6xl w-full grid grid-cols-1 gap-16 px-6">
             {/* Headline Section - Full Width */}
             <div className="w-full">
-              <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold leading-tight tracking-tight">
+              <h1 className="text-4xl text-center lg:text-left md:text-6xl lg:text-8xl font-bold leading-tight tracking-tight">
                 Here my{" "}
                 <span className="text-orange-500" style={{ color: "#FF3830" }}>
                   selected
@@ -416,7 +416,7 @@ const Projects = () => {
                   threshold={0}
                   delay={0.4}
                 >
-                  <p className="text-xl leading-relaxed text-gray-500 tracking-wide">
+                  <p className="text-xl leading-relaxed text-gray-500 tracking-wide text-center lg:text-left">
                     believe that every idea deserves to be executed
                     wholeheartedly. On this page, you'll see how I translate
                     ideas into impactful and user-friendly digital products.

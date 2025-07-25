@@ -18,7 +18,11 @@ const LandingPage = () => {
               threshold={0}
               delay={0.2}
             >
-              <img src="assets/logo.png" className="w-[450px]" alt="logo" />
+              <img
+                src="assets/logo.png"
+                className="lg:w-[450px] lg:mx-0 w-xs mx-auto"
+                alt="logo"
+              />
             </AnimatedContent>
             <AnimatedContent
               distance={50}
@@ -32,7 +36,7 @@ const LandingPage = () => {
               threshold={0}
               delay={0.2}
             >
-              <p className="text-3xl my-5 text-slate-500">
+              <p className="lg:text-2xl text-md px-6 mx-6 lg:px-0 lg:mx-0 my-5 max-w-lg text-slate-500">
                 Muhammad Zaidan, guiding impactful solutions with clean code and
                 thoughtful design
               </p>

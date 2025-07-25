@@ -86,7 +86,7 @@ const About = () => {
                 </div>
               </div>
               {/* Expertise */}
-              <div className="p-1 overflow-hidden flex items-center justify-center">
+              <div className="p-1 min-h-[150px] overflow-hidden flex items-center justify-center">
                 {/* card */}
                 <div className="w-full h-full rounded-2xl bg-[#171717] flex items-center justify-center">
                   <AnimatedContent
@@ -112,7 +112,7 @@ const About = () => {
                 </div>
               </div>
               {/* Stack */}
-              <div className="flex justify-center items-center p-1 overflow-hidden lg:row-span-2 ">
+              <div className="flex min-h-[200px] justify-center items-center p-1 overflow-hidden lg:row-span-2 ">
                 {/* card */}
                 <div className="w-full h-full rounded-2xl bg-[#171717] flex flex-wrap justify-center items-center relative">
                   <h1 className="font-bold text-xl absolute text-center mt-10 text-clamp-1 opacity-40">
@@ -122,9 +122,10 @@ const About = () => {
                     </span>
                   </h1>
                   <FallingText
-                    text={`Vanilla-CSS Bootstrap React Javascript Next.JS PHP Laravel Codeigniter MySql Firebase`}
+                    text={`Vanilla-CSS Bootstrap React Javascript Next.JS PHP Laravel Codeigniter MySql Firebase Tailwind`}
                     highlightWords={[
                       "React",
+                      "Tailwind",
                       "Bootstrap",
                       "Vanilla-CSS",
                       "Javascript",
