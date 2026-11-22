@@ -1,0 +1,597 @@
+@import "tailwindcss";
+
+/* Lab Notebook. Colours and faces are placeholders until the owner's identity lands: change them here only. */
+:root {
+  --paper: #f2f0ea;
+  --surface: #e7e4dc;
+  --ink: #131313;
+  --muted: #5d5a54;
+  --grid: rgb(19 19 19 / 0.06);
+  --accent: #d9431b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121211;
+    --surface: #1d1d1b;
+    --ink: #ecebe6;
+    --muted: #a3a09a;
+    --grid: rgb(236 235 230 / 0.05);
+    --accent: #ff6b3d;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+/* Graph paper, 24px squares. */
+.paper {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* Annotation voice: the small engineer's handwriting next to the drawing. */
+.note {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.display {
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.88;
+  font-size: clamp(3.25rem, 12vw, 11rem);
+}
+
+/* A dimension line: |———| under whatever it measures. */
+.dim {
+  position: relative;
+  display: block;
+  height: 12px;
+  border-top: 1px solid var(--ink);
+  margin-top: 6px;
+  translate: 0 6px;
+}
+.dim::before,
+.dim::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  width: 1px;
+  height: 13px;
+  background: var(--ink);
+}
+.dim::before { left: 0; }
+.dim::after { right: 0; }
+
+/* Spec sheet tables. */
+.spec {
+  width: 100%;
+  border-collapse: collapse;
+}
+.spec th,
+.spec td {
+  border-top: 1px solid var(--ink);
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  text-align: left;
+  vertical-align: top;
+}
+.spec th {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  width: 8rem;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% { opacity: 0.35; }
+}
+
+.lift {
+  transition: translate 160ms ease, color 160ms ease;
+}
+.lift:hover {
+  translate: 0 -2px;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+  .lift { transition: none; }
+  .lift:hover { translate: none; }
+}
+
+/* Editorial article body. */
+.article {
+  font-family: var(--font-serif);
+  font-size: 1.3125rem;
+  line-height: 1.6;
+  max-width: 66ch;
+}
+.article > * + * { margin-top: 1.1em; }
+.article h2,
+.article h3 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-top: 2em;
+}
+.article h2 { font-size: 1.75rem; }
+.article h3 { font-size: 1.375rem; }
+.article a { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--accent); }
+.article blockquote { border-left: 3px solid var(--accent); padding-left: 1em; font-style: italic; }
+.article ul { list-style: disc; padding-left: 1.25em; }
+.article ol { list-style: decimal; padding-left: 1.25em; }
+.article img { width: 100%; height: auto; }
+.article code { font-family: var(--font-mono); font-size: 0.85em; background: var(--surface); padding: 0.1em 0.3em; }
+.article pre { background: var(--surface); padding: 1rem; overflow-x: auto; font-size: 0.9rem; line-height: 1.5; }
+.article pre code { background: none; padding: 0; }
+.article hr { border: 0; border-top: 1px solid var(--ink); }
+.article video,
+.article .embed iframe { width: 100%; display: block; background: var(--surface); }
+.article .embed iframe { aspect-ratio: 16 / 9; border: 0; }
+.article img.ProseMirror-selectednode,
+.article video.ProseMirror-selectednode,
+.article .ProseMirror-selectednode .embed { outline: 3px solid var(--accent); }
+
+.cat-tab:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Admin controls. */
+.field {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--muted);
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  color: inherit;
+}
+textarea.field { font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.5; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn:hover { background: var(--accent); }
+.btn-quiet {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+.btn-quiet:hover { background: var(--surface); }
+
+/* ── New direction (home only until approved): calm surface, a story on scroll. ── */
+.v2 {
+  --bg: #f7f6f3;
+  --fg: #121212;
+  --soft: #6a6863;
+  --line: rgb(18 18 18 / 0.12);
+  --tint: #edebe6;
+  --orange: #ff3b30; /* the logo's red */
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+@media (prefers-color-scheme: dark) {
+  .v2 {
+    --bg: #0f0f0e;
+    --fg: #f1efea;
+    --soft: #9b9891;
+    --line: rgb(241 239 234 / 0.14);
+    --tint: #1a1a18;
+    --orange: #ff4a3f;
+  }
+}
+/* The older sheet styles (.note, .spec, .article…) read these names; in v2 they take the v2 palette. */
+.v2 {
+  --paper: var(--bg);
+  --surface: var(--tint);
+  --ink: var(--fg);
+  --muted: var(--soft);
+  --accent: var(--orange);
+  --grid: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+/* On the home page the shared header floats over the hero. */
+body:has(.home) > .site-header { position: absolute; inset-inline: 0; top: 0; }
+
+/* Index pages sit on faint graph paper, fading out below the title. */
+.v2 .page-head { position: relative; }
+.v2 .page-head::before {
+  content: ""; position: absolute; inset: -6rem 0 -4rem; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+
+/* Thumbnails: photo or generated artwork, always the same frame. */
+.v2 .cover { display: block; width: 100%; height: 100%; object-fit: cover; transition: scale 600ms cubic-bezier(.2,.7,.2,1); }
+.v2 .cover-initial { font-family: var(--font-bricolage), sans-serif; font-weight: 800; font-size: 150px; fill: none; stroke: var(--fg); stroke-width: 1; opacity: 0.5; }
+.v2 .cover-label { font-family: var(--font-geist), sans-serif; font-size: 11px; letter-spacing: 0.14em; fill: var(--fg); opacity: 0.65; }
+
+/* Posts: outlined cards in staggered columns. */
+.v2 .post-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); }
+@media (min-width: 900px) { .v2 .post-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
+.v2 .post-card {
+  display: flex; flex-direction: column; gap: 0.7rem; height: 100%; padding: 0.7rem 0.7rem 1rem;
+  border: 1px solid var(--line); background: var(--bg);
+  transition: border-color 250ms ease, translate 400ms cubic-bezier(.2,.7,.2,1);
+}
+.v2 .post-card:hover { border-color: var(--orange); translate: 0 -4px; }
+.v2 .post-card:hover .cover { scale: 1.04; }
+.v2 .post-thumb { display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--tint); }
+
+/* Category tabs: pills; the filter itself is CSS (:has), so the list stays static and works without JS. */
+.v2 .cat-tab { border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 0.95rem; cursor: pointer; font-family: inherit; font-size: 0.95rem; transition: background 150ms, color 150ms, border-color 150ms; }
+.v2 .cat-tab:hover { border-color: var(--fg); background: transparent; }
+.v2 .cat-tab:has(input:checked) { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.v2 .cat-tab .count { margin-left: 0.4rem; color: var(--orange); font-size: 0.8em; }
+.writing:has(input[value="project"]:checked) .post:not([data-cat="project"]),
+.writing:has(input[value="work"]:checked) .post:not([data-cat="work"]),
+.writing:has(input[value="learn"]:checked) .post:not([data-cat="learn"]),
+.writing:has(input[value="thought"]:checked) .post:not([data-cat="thought"]) { display: none; }
+/* The newest post is shown large under "All"; picking a category swaps it for the plain grid. */
+.writing:has(input[value="all"]:checked) .post.is-lead,
+.writing:has(input:not([value="all"]):checked) .lead { display: none; }
+
+/* Selected projects: big rows, cover on one side, title on the other. */
+.v2 .feature { display: grid; gap: 1.5rem; border-top: 1px solid var(--line); padding-block: 2rem; }
+@media (min-width: 900px) { .v2 .feature { grid-template-columns: 7fr 5fr; gap: 3rem; align-items: end; } .v2 .feature:nth-child(even) .feature-art { order: 2; } }
+.v2 .feature-art { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: var(--tint); }
+.v2 .feature:hover .cover { scale: 1.03; }
+
+/* Home: a project title shows its cover next to the pointer. */
+.v2 .peek { position: relative; }
+.v2 .peek-img { position: absolute; left: 55%; bottom: 100%; width: min(18rem, 60vw); aspect-ratio: 4 / 3; overflow: hidden; pointer-events: none; opacity: 0; translate: 0 1rem; rotate: -3deg; transition: opacity 250ms ease, translate 400ms cubic-bezier(.2,.7,.2,1); z-index: 5; box-shadow: 0 30px 60px -30px rgb(0 0 0 / .45); }
+@media (hover: hover) { .v2 .peek:hover .peek-img { opacity: 1; translate: 0 0; } }
+
+/* One sans at a regular weight, as on dennissnellenberg.com: large but light, so pages breathe. */
+.v2 .display-font {
+  font-family: var(--font-geist), sans-serif;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  font-weight: 450;
+}
+.v2 .link {
+  background: linear-gradient(var(--orange), var(--orange)) 0 100% / 0 2px no-repeat;
+  transition: background-size 280ms ease, color 200ms ease;
+}
+.v2 .link:hover, .v2 .link:focus-visible { background-size: 100% 2px; }
+.v2 :focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; }
+.v2 ::selection { background: var(--orange); color: #fff; }
+
+/* Scroll story: chapter progress and gentle entrances, CSS scroll timelines where supported. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .v2 .chapter { view-timeline-name: --chapter; }
+    .v2 .chapter-bar { transform-origin: top; animation: grow linear both; animation-timeline: --chapter; animation-range: contain 0% contain 100%; }
+    .v2 .rise { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+  }
+}
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes rise { from { opacity: 0; translate: 0 28px; } to { opacity: 1; translate: 0 0; } }
+
+/* The "Kenapa" statement lights up word by word as it scrolls past (--p set by a tiny script). */
+.v2 .scrub span { opacity: clamp(0.18, calc(var(--p, 1) * var(--n) - var(--i)), 1); transition: opacity 120ms linear; }
+.v2 .note { font-family: inherit; font-size: 0.95rem; color: var(--soft); }
+
+/* Preloader: orange screen, mark pops in, name fades, then the whole screen lifts (pure CSS timing). */
+.preloader {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center;
+  background: var(--bg, #0f0f0e); color: var(--fg, #f1efea);
+  animation: lift 0.9s cubic-bezier(0.76, 0, 0.24, 1) 1.5s forwards;
+}
+.preloader-mark { width: min(22rem, 64vw); animation: fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both; }
+.preloader-mark img { animation: pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both; }
+.logo-word { background: currentColor; -webkit-mask: url(/brand/jejak-word.png) center / 100% 100% no-repeat; mask: url(/brand/jejak-word.png) center / 100% 100% no-repeat; }
+.preloader-name { position: absolute; bottom: 2rem; font-size: 0.85rem; letter-spacing: 0.02em; animation: fade 0.6s ease 0.5s both; }
+.intro-seen .preloader { display: none; }
+@keyframes lift { to { transform: translateY(-100%); visibility: hidden; } }
+@keyframes pop { from { transform: scale(0.4) rotate(-90deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Hero marquee: two rows of giant type, the second outlined. */
+.v2 .marquee { display: grid; gap: 0.2em; font-family: var(--font-geist), sans-serif; font-weight: 450; font-size: clamp(5.5rem, 17vw, 18rem); line-height: 1; letter-spacing: -0.03em; }
+.v2 .marquee-row { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
+.v2 .marquee-outline { color: transparent; -webkit-text-stroke: 1.5px var(--fg); opacity: 0.55; }
+
+/* 3D figure: the canvas fades in once the model is placed; the hologram itself is drawn in the shader. */
+.v2 .hologram-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.9s ease; }
+.v2 .hologram-canvas.is-ready { opacity: 1; }
+.v2 .hologram-hint { position: absolute; left: calc(50% + 13rem); bottom: 26%; font-size: 0.8rem; color: var(--soft); max-width: 9rem; line-height: 1.3; pointer-events: none; }
+.v2 .hologram-hint::before { content: "\2190  "; color: var(--orange); }
+@media (max-width: 640px) { .v2 .hologram-hint { display: none; } }
+
+/* Floating project titles drift at their own speed (--d) as the section scrolls by. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .v2 .float { animation: drift linear both; animation-timeline: view(); }
+  }
+}
+@keyframes drift { from { translate: 0 calc(var(--d) * 1px); } to { translate: 0 calc(var(--d) * -1px); } }
+
+/* Second voice in big statements: serif italic, accent colour. */
+.v2 .scrub-accent { font-family: var(--font-newsreader), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: var(--orange); }
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader { display: none; }
+}
+
+/* ── Admin in the new look: the old Lab Notebook tokens point at the v2 palette, so existing pages follow. ── */
+.admin {
+  --paper: var(--bg);
+  --surface: var(--tint);
+  --ink: var(--fg);
+  --muted: var(--soft);
+  --accent: var(--orange);
+}
+.admin h1 {
+  font-family: var(--font-bricolage), var(--font-geist), sans-serif;
+  font-variation-settings: "opsz" 96;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+.admin h2 {
+  font-family: var(--font-bricolage), var(--font-geist), sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+.admin .note { font-size: 0.85rem; }
+.admin-nav { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 1.5rem; }
+.admin-nav a { padding: 0.35rem 0.75rem; border-radius: 999px; color: var(--soft); transition: background 160ms ease, color 160ms ease; }
+.admin-nav a:hover { color: var(--fg); background: var(--tint); }
+.admin-nav a[aria-current="page"] { color: var(--fg); background: var(--tint); box-shadow: inset 3px 0 0 var(--orange); }
+@media (min-width: 1024px) { .admin-nav { display: grid; } }
+.admin .panel { background: var(--tint); border-radius: 1.25rem; padding: clamp(1.25rem, 3vw, 2rem); }
+.admin .field {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.admin .field::placeholder { color: var(--soft); opacity: 0.7; }
+.admin .field:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px color-mix(in srgb, var(--orange) 22%, transparent); }
+.admin textarea.field { font-family: inherit; font-size: 0.95rem; }
+.admin .btn { border-radius: 999px; padding: 0.6rem 1.2rem; background: var(--fg); color: var(--bg); transition: background 160ms ease; }
+.admin .btn:hover { background: var(--orange); color: #fff; }
+.admin .btn-quiet { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.admin .btn-quiet:hover { background: var(--tint); color: var(--fg); }
+.admin .check { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+.admin .check input { accent-color: var(--orange); width: 1rem; height: 1rem; }
+.admin .lang-tag { justify-self: start; font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 0.15rem 0.6rem; margin-bottom: 0.5rem; }
+.admin .savebar { position: sticky; bottom: 1rem; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 0.75rem; border-radius: 999px; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); border: 1px solid var(--line); width: fit-content; }
+.admin table th { font-weight: 400; }
+.admin table tr { border-color: var(--line); }
+.admin .ProseMirror, .admin [contenteditable] { background: var(--bg); border-radius: 0.65rem; }
+
+/* Phone menu: a <details> that drops a full-width panel under the header. */
+.v2 .mobile-menu summary { list-style: none; cursor: pointer; border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.9rem; }
+.v2 .mobile-menu summary::-webkit-details-marker { display: none; }
+.v2 .mobile-menu[open] summary { background: var(--fg); color: var(--bg); }
+.v2 .mobile-menu-panel { position: absolute; inset-inline: 0; top: 100%; z-index: 40; display: grid; gap: 0.6rem; padding: 1.5rem 1.25rem 2rem; background: var(--bg); border-bottom: 1px solid var(--line); }
+.v2 .site-header { position: relative; }
+
+/* ── Flow ─────────────────────────────────────────────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
+
+/* Page changes: the old page lifts away softly, the new one rises in; covers fly from card to article. */
+::view-transition-old(.page) { animation: page-out 360ms cubic-bezier(.4, 0, .2, 1) both; }
+::view-transition-new(.page) { animation: page-in 700ms cubic-bezier(.16, 1, .3, 1) 90ms both; }
+@keyframes page-out { to { opacity: 0; translate: 0 -2rem; filter: blur(6px); } }
+@keyframes page-in { from { opacity: 0; translate: 0 3rem; } }
+::view-transition-group(.morph) { animation-duration: 750ms; animation-timing-function: cubic-bezier(.16, 1, .3, 1); }
+::view-transition-image-pair(.morph) { animation-name: via-blur; }
+@keyframes via-blur { 35% { filter: blur(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* Home: the hero sinks back as the story starts, so the first chapter seems to grow out of it. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .v2 .hero .hologram, .v2 .hero .marquee { animation: hero-out linear both; animation-timeline: scroll(root); animation-range: 0 90vh; }
+    .v2 .chapter > div:first-child h2 { animation: label-in linear both; animation-timeline: view(); animation-range: entry 10% entry 70%; }
+  }
+}
+@keyframes hero-out { to { opacity: 0.12; scale: 0.94; filter: blur(3px); } }
+@keyframes label-in { from { opacity: 0; clip-path: inset(0 0 100% 0); translate: 0 1.5rem; } to { opacity: 1; clip-path: inset(0); translate: 0 0; } }
+.v2 .talk { background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--orange) 7%, transparent)); }
+
+/* Writing rail: pinned on wide screens, a swipeable row on phones. */
+.v2 .rail { position: relative; }
+.v2 .rail-sticky { overflow: hidden; }
+.v2 .rail.is-pinned .rail-sticky { position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+.v2 .rail-track { display: flex; gap: 2rem; align-items: center; padding: 2rem 1.25rem 3rem; will-change: transform; }
+.v2 .rail:not(.is-pinned) .rail-track { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.v2 .rail:not(.is-pinned) .rail-track > * { scroll-snap-align: start; }
+@media (min-width: 640px) { .v2 .rail-track { padding-inline: 2.5rem; gap: 2.5rem; } }
+.v2 .rail-intro { flex: 0 0 min(85vw, 30rem); align-self: center; }
+.v2 .rail-card { flex: 0 0 auto; width: min(78vw, calc(52svh * 0.8)); display: block; }
+.v2 .rail-card:nth-child(even) { translate: 0 -2.5rem; }
+.v2 .rail-thumb { display: block; aspect-ratio: 4 / 5; max-height: 52svh; overflow: hidden; border-radius: 1.25rem; background: var(--tint); }
+.v2 .rail-card:hover .cover { scale: 1.05; }
+.v2 .rail-end { flex: 0 0 min(70vw, 18rem); align-self: center; display: grid; justify-items: start; }
+.v2 .rail-end-circle { display: grid; place-items: center; width: 8rem; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--line); font-size: 2rem; transition: background 300ms, color 300ms, scale 400ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .rail-end:hover .rail-end-circle { background: var(--orange); color: #fff; border-color: var(--orange); scale: 1.08; }
+.v2 .rail-progress { height: 2px; margin-inline: 2.5rem; background: var(--line); }
+.v2 .rail.is-pinned .rail-progress { background: linear-gradient(to right, var(--orange) calc(var(--p, 0) * 100%), var(--line) 0); }
+.v2 .rail:not(.is-pinned) .rail-progress { display: none; }
+
+/* Writing page: tabs stay in reach; the newest post opens large. */
+.v2 .tabs-bar { position: sticky; top: 0; z-index: 20; padding-block: 0.9rem; margin-inline: -0.25rem; padding-inline: 0.25rem; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(12px); }
+.v2 .lead { display: grid; gap: 1.75rem; margin-top: 2.5rem; }
+@media (min-width: 900px) { .v2 .lead { grid-template-columns: 7fr 5fr; gap: 3rem; align-items: end; } }
+.v2 .lead-art { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 1.25rem; background: var(--tint); }
+.v2 .lead:hover .cover { scale: 1.03; }
+.v2 .post-card { border-radius: 1.25rem; }
+.v2 .post-thumb { border-radius: 0.85rem; }
+
+/* How: loose stickers that drift, a line of numbered stops that fills as they land. */
+.v2 .tidy-card { padding: 1rem 1.1rem; border-radius: 1.1rem; background: var(--bg); border: 1px solid var(--line); box-shadow: 0 1px 0 var(--line), 0 18px 40px -28px rgb(0 0 0 / 0.5); transition: border-color 200ms, box-shadow 300ms, translate 400ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .tidy-card.is-loose:not(.is-dragging) { animation: bob 5s ease-in-out var(--bob, 0s) infinite; }
+.v2 .tidy-card.cursor-grab:hover { border-color: var(--orange); translate: 0 -3px; }
+.v2 .tidy-card.is-dragging { cursor: grabbing; box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.55); border-color: var(--orange); }
+@keyframes bob { 50% { translate: 0 -6px; } }
+@media (prefers-reduced-motion: reduce) { .v2 .tidy-card.is-loose { animation: none !important; } }
+.v2 .tidy-path { position: relative; }
+.v2 .tidy-line { position: absolute; left: 1.1rem; top: 1.1rem; bottom: 1.1rem; width: 2px; background: var(--line); border-radius: 2px; }
+.v2 .tidy-line span { display: block; width: 100%; height: calc(var(--filled, 0) * 100%); background: var(--orange); border-radius: inherit; transition: height 700ms cubic-bezier(.16, 1, .3, 1), width 700ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .tidy-stops { display: grid; gap: 1rem; list-style: none; padding: 0; margin: 0; }
+.v2 .tidy-stop { position: relative; display: grid; grid-template-columns: 2.2rem 1fr; gap: 1rem; align-items: center; min-height: 4.2rem; }
+.v2 .tidy-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 2.2rem; aspect-ratio: 1; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); font-size: 0.85rem; color: var(--soft); transition: background 400ms, color 400ms, border-color 400ms, scale 400ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .tidy-stop.is-full .tidy-dot { background: var(--orange); border-color: var(--orange); color: #fff; scale: 1.1; }
+.v2 .tidy-hint { border-radius: 999px; border: 1px dashed var(--line); padding: 0.7rem 1rem; color: var(--soft); font-size: 0.9rem; transition: border-color 200ms, background 200ms; }
+.v2 .tidy-stop.is-empty:hover .tidy-hint { border-color: var(--orange); background: color-mix(in srgb, var(--orange) 6%, transparent); }
+@media (min-width: 900px) {
+  .v2 .tidy-line { left: 1.1rem; right: 1.1rem; top: 1.1rem; bottom: auto; width: auto; height: 2px; }
+  .v2 .tidy-line span { width: calc(var(--filled, 0) * 100%); height: 100%; }
+  .v2 .tidy-stops { grid-template-columns: repeat(5, 1fr); gap: 1.25rem; }
+  .v2 .tidy-stop { grid-template-columns: 1fr; align-items: start; align-content: start; gap: 1rem; min-height: 11rem; }
+  .v2 .tidy-hint { text-align: center; padding-block: 2.2rem; border-radius: 1.1rem; }
+}
+
+/* Comments: soft cards, replies hang off a thin line, the author's answers carry the accent. */
+.v2 .comment-form { display: grid; gap: 0.6rem; }
+.v2 .comment-input { width: 100%; border: 1px solid var(--line); border-radius: 0.9rem; background: transparent; padding: 0.75rem 0.9rem; font: inherit; color: inherit; transition: border-color 150ms; resize: vertical; }
+.v2 .comment-input:focus { outline: none; border-color: var(--orange); }
+.v2 .comment-btn { border-radius: 999px; padding: 0.7rem 1.3rem; background: var(--fg); color: var(--bg); font-weight: 500; white-space: nowrap; transition: background 200ms, scale 300ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .comment-btn:hover { background: var(--orange); scale: 1.03; }
+.v2 .comment-btn.is-quiet { background: transparent; color: var(--soft); border: 1px solid var(--line); }
+.v2 .comment-btn:disabled { opacity: 0.5; }
+.v2 .comment-body { border: 1px solid var(--line); border-radius: 1.1rem; padding: 1rem 1.1rem; animation: rise-in 500ms cubic-bezier(.16, 1, .3, 1) both; }
+.v2 .comment-body.is-owner { border-color: color-mix(in srgb, var(--orange) 45%, transparent); background: color-mix(in srgb, var(--orange) 5%, transparent); }
+.v2 .comment-replies { display: grid; gap: 0.9rem; margin-top: 0.9rem; padding-left: 1.1rem; border-left: 2px solid var(--line); margin-left: 0.6rem; }
+@keyframes rise-in { from { opacity: 0; translate: 0 0.6rem; } }
+
+/* Back office for daily use: calm cards, chips for filters, rows you can click anywhere on. */
+.admin .card { border: 1px solid var(--line); border-radius: 1rem; padding: 1rem 1.1rem; background: var(--bg); }
+.admin .card.is-waiting { border-color: color-mix(in srgb, var(--orange) 45%, transparent); }
+.admin .card-title { font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; }
+.admin .badge { border-radius: 999px; background: var(--orange); color: #fff; font-size: 0.75rem; padding: 0.05rem 0.5rem; }
+.admin .chip { border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.85rem; font-size: 0.9rem; color: var(--soft); transition: background 150ms, color 150ms; }
+.admin .chip:hover { color: var(--fg); }
+.admin .chip[aria-current="page"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.admin .row { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: baseline; padding: 0.75rem 0.5rem; border-radius: 0.6rem; transition: background 120ms; }
+@media (min-width: 640px) { .admin .row { grid-template-columns: 1fr 8rem 5rem 5rem; } }
+.admin .row:hover { background: var(--tint); }
+.admin .meter { height: 6px; border-radius: 999px; background: var(--tint); overflow: hidden; }
+.admin .meter span { display: block; height: 100%; background: var(--fg); border-radius: inherit; }
+.admin .meter span.is-over { background: var(--orange); }
+.admin .skeleton { height: 60vh; border-radius: 1rem; background: linear-gradient(90deg, var(--tint), color-mix(in srgb, var(--tint) 40%, var(--bg)), var(--tint)); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.admin .palette { margin: 12vh auto auto; width: min(36rem, 92vw); border: 1px solid var(--line); border-radius: 1rem; padding: 0.75rem; background: var(--bg); color: var(--fg); box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.5); }
+.admin .palette::backdrop { background: rgb(0 0 0 / 0.35); backdrop-filter: blur(3px); }
+.admin .palette-input { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 0.6rem 0.5rem 0.9rem; font-size: 1.1rem; color: inherit; outline: none; }
+.admin .palette ul { list-style: none; margin: 0.5rem 0; padding: 0; max-height: 50vh; overflow: auto; }
+.admin .palette button { width: 100%; text-align: left; padding: 0.55rem 0.6rem; border-radius: 0.6rem; }
+.admin .palette [aria-selected="true"] button { background: var(--tint); box-shadow: inset 3px 0 0 var(--orange); }
+
+/* Hero, after dennissnellenberg.com: the photo, one line of name gliding across it, a location pill, the role. */
+.v2 .hero-name { position: absolute; inset-inline: 0; bottom: 9%; z-index: 15; color: var(--fg); }
+.v2 .hero .hologram-hint { display: none; }
+.v2 .hero-locate { position: absolute; left: 0; top: 44%; z-index: 20; display: flex; align-items: center; gap: 1.4rem; padding: 0.85rem 0.85rem 0.85rem 1.6rem; border-radius: 0 999px 999px 0; background: var(--fg); color: var(--bg); font-size: 0.95rem; line-height: 1.2; }
+.v2 .hero-globe { display: grid; place-items: center; width: 3.4rem; aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, var(--bg) 22%, var(--fg)); }
+.v2 .hero-globe svg { animation: spin 14s linear infinite; }
+@keyframes spin { to { rotate: 360deg; } }
+.v2 .hero-role { position: absolute; right: 6%; top: 30%; z-index: 20; max-width: 12ch; font-size: clamp(1.6rem, 2.7vw, 2.8rem); line-height: 1.25; font-weight: 450; letter-spacing: -0.02em; }
+.v2 .hero-role::before { content: "↘"; display: block; margin-bottom: 2.2rem; font-size: 0.75em; }
+@media (max-width: 640px) {
+  .v2 .hero-locate { top: auto; bottom: 34%; font-size: 0.8rem; padding-left: 1.1rem; }
+  .v2 .hero-globe { width: 2.6rem; }
+  .v2 .hero-role { top: 15%; right: 1.25rem; font-size: 1.25rem; }
+  .v2 .hero-role::before { margin-bottom: 0.8rem; }
+  .v2 .hero-name { bottom: 22%; }
+}
+@media (prefers-reduced-motion: reduce) { .v2 .hero-globe svg { animation: none; } }
+
+/* Who: an oscilloscope; each trait is a signal and the trace morphs between them. */
+.v2 .scope { display: grid; gap: 1rem; }
+@media (min-width: 900px) { .v2 .scope { grid-template-columns: 1fr 13rem; align-items: stretch; } }
+.v2 .scope-screen { position: relative; border-radius: 1.4rem; border: 1px solid var(--line); background: radial-gradient(120% 120% at 50% 40%, color-mix(in srgb, var(--orange) 7%, var(--tint)), var(--tint)); overflow: hidden; aspect-ratio: 5 / 2.4; }
+.v2 .scope-screen svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.v2 .scope-grid { stroke: var(--fg); stroke-opacity: 0.08; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.v2 .scope-trace { fill: none; stroke: var(--orange); stroke-width: 2.2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.v2 .scope-glow { fill: none; stroke: var(--orange); stroke-width: 10; stroke-opacity: 0.16; vector-effect: non-scaling-stroke; filter: blur(4px); }
+.v2 .scope-readout { position: absolute; left: 1.4rem; bottom: 1.1rem; right: 1.4rem; display: grid; gap: 0.2rem; }
+.v2 .scope-name { font-size: clamp(1.8rem, 3.4vw, 3rem); letter-spacing: -0.03em; line-height: 1; animation: rise-in 500ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .scope-readout span:last-child { color: var(--soft); max-width: 36ch; }
+.v2 .scope-keys { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+@media (min-width: 900px) { .v2 .scope-keys { grid-template-columns: 1fr; align-content: end; } }
+.v2 .scope-key { display: flex; align-items: center; gap: 0.75rem; border: 1px solid var(--line); border-radius: 999px; padding: 0.8rem 1.1rem; font-size: 1.1rem; transition: border-color 200ms, background 200ms; text-align: left; }
+.v2 .scope-key:hover, .v2 .scope-key[aria-selected="true"] { border-color: var(--orange); background: color-mix(in srgb, var(--orange) 6%, transparent); }
+.v2 .scope-led { width: 0.55rem; aspect-ratio: 1; border-radius: 50%; background: var(--line); transition: background 200ms, box-shadow 200ms; }
+.v2 .scope-key[aria-selected="true"] .scope-led { background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+.v2 .live-led { width: 0.55rem; aspect-ratio: 1; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 0 var(--orange); animation: led 2s ease-out infinite; }
+@keyframes led { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--orange) 60%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+
+/* How: the toy's play area. Loose cards are positioned by the physics (transform), so they sit at the origin. */
+.v2 .toss { position: relative; height: 22rem; overflow: hidden; border-radius: 1.4rem; background: radial-gradient(90% 70% at 50% 100%, color-mix(in srgb, var(--orange) 6%, transparent), transparent); touch-action: pan-y; transition: height 600ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .toss.is-done { height: 0; }
+.v2 .toss .tidy-card { position: absolute; left: 0; top: 0; width: min(44vw, 15rem); will-change: transform; animation: none; }
+.v2 .toss .tidy-card:active { cursor: grabbing; }
+.v2 .tidy-stop.is-near .tidy-hint { border-color: var(--orange); border-style: solid; background: color-mix(in srgb, var(--orange) 10%, transparent); scale: 1.04; }
+.v2 .tidy-stop.is-near .tidy-dot { background: var(--orange); color: #fff; border-color: var(--orange); }
+.v2 .tidy-hint { transition: border-color 200ms, background 200ms, scale 300ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .tidy-path.is-done .tidy-dot { animation: pulse-dot 700ms cubic-bezier(.16, 1, .3, 1) both; }
+.v2 .tidy-path.is-done .tidy-stop:nth-child(2) .tidy-dot { animation-delay: 80ms; }
+.v2 .tidy-path.is-done .tidy-stop:nth-child(3) .tidy-dot { animation-delay: 160ms; }
+.v2 .tidy-path.is-done .tidy-stop:nth-child(4) .tidy-dot { animation-delay: 240ms; }
+.v2 .tidy-path.is-done .tidy-stop:nth-child(5) .tidy-dot { animation-delay: 320ms; }
+@keyframes pulse-dot { 40% { scale: 1.5; box-shadow: 0 0 0 10px color-mix(in srgb, var(--orange) 25%, transparent); } }

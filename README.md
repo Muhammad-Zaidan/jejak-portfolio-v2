@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio & Personal OS
 
-## Getting Started
+Satu situs, dua sisi. Sisi depan `/id` dan `/en` adalah portfolio publik dan tulisan, bergaya Lab Notebook untuk kerangkanya dan Editorial untuk artikel. Sisi belakang `/admin` adalah dashboard pribadi: agenda Google Calendar, catatan dan ide, tulisan, keuangan, proyek, dan pesan masuk.
 
-First, run the development server:
+Stack: Next.js 16 (App Router, Cache Components), Supabase (Postgres + Auth + RLS), Tailwind 4. Deploy ke Vercel.
+
+## Menjalankan
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # lalu isi, lihat Setup
+npm run dev                  # http://localhost:3000
+npm test                     # RLS, enkripsi token, hitungan uang
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Tanpa `.env.local` situs tetap jalan dengan isi kosong, dan `/admin` menampilkan pesan setup.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Setup (sekali saja)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Supabase.** Buat proyek di supabase.com, isi `.env.local` (lihat `.env.example`, termasuk `SUPABASE_DB_URL` dari tombol Connect → Session pooler), lalu jalankan:
+   ```
+   npm run db
+   ```
+   Ini membuat semua tabel (`supabase/migrations`) dan mengisi contoh isi dari `supabase/seed.sql` (semuanya bertanda "contoh", hapus kapan saja). Pemilik admin diatur di baris pertama `seed.sql`. Login pertama cukup lewat link email; Google (langkah 2–3) baru perlu untuk Kalender.
 
-## Learn More
+2. **Google Cloud.** Buat proyek, aktifkan *Google Calendar API*, lalu buat *OAuth client ID* tipe Web application.
+   - Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`
+   - Biarkan OAuth consent screen di mode *Testing*, tambahkan email Anda sebagai test user, dan tambahkan scope `.../auth/calendar.events`. Untuk pemakaian pribadi tidak perlu verifikasi Google.
+3. **Supabase Auth.** Di Authentication → Providers → Google, isi client ID dan secret. Di Authentication → URL Configuration, tambahkan `http://localhost:3000/auth/callback` dan `https://domain-anda/auth/callback` ke Redirect URLs.
+4. **`.env.local`.** Isi semua variabel di `.env.example`. `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET` sama dengan yang diisi di Supabase.
+5. Buka `/admin`, lalu masuk dengan Google. Login pertama sekaligus menghubungkan kalender.
+6. **Vercel.** Import repo, isi environment variables yang sama, lalu ubah `NEXT_PUBLIC_SITE_URL` ke domain produksi.
 
-To learn more about Next.js, take a look at the following resources:
+## Peta kode
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Bagian | Tempat |
+| --- | --- |
+| Skema dan aturan akses | `supabase/migrations/0001_init.sql` |
+| Teks, profil, dan tampilan situs | Admin → Situs (`src/lib/site.ts`, tabel `site`) |
+| Teks antarmuka ID/EN, bio "Tentang" | `src/lib/i18n.ts` |
+| Warna dan font (ganti dengan identitas visual) | `src/app/globals.css`, `src/app/fonts.ts` |
+| Halaman publik | `src/app/(site)/[lang]/` |
+| Admin dan semua aksi tulis | `src/app/admin/`, `src/app/admin/actions.ts` |
+| Google Calendar | `src/lib/gcal.ts` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Isi publik di-cache satu jam dan diperbarui langsung setiap kali Anda menyimpan dari admin.
 
-## Deploy on Vercel
+## Belum dibuat (sengaja, sesuai fase PRD atau untuk menjaga MVP kecil)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- API ingest untuk Hermes (fase 2). Kolom `source`, `external_id`, dan `reviewed` di `transactions` sudah disiapkan.
+- Halaman `/arsip` (Timeline Hidup), tugas, jurnal harian, PWA, dan halaman Now/Uses (fase 2).
+- Pencarian di halaman Tulisan publik dan daftar isi artikel.
+- Tautan antar catatan (backlink), syntax highlighting di blok kode, dan edit event kalender (bisa tambah dan hapus).
+- Rate limit formulir kontak (sementara honeypot dan batas panjang di database).

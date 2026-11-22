@@ -1,0 +1,269 @@
+<!doctype html>
+<!-- PROTOTYPE, throwaway: answers "what should the landing feel like?". Delete once a direction is chosen. -->
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prototipe · Telemetri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0c0d0b;
+    --surface: #161714;
+    --ink: #efece4;
+    --muted: #8d8a81;
+    --grid: rgb(239 236 228 / 0.045);
+    --amber: #ffb21e;
+    --display: 'Big Shoulders Display', Impact, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --serif: 'Instrument Serif', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--amber); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+  /* HUD */
+  .hud {
+    position: fixed; inset: 0 0 auto 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px clamp(16px, 3vw, 40px);
+    mix-blend-mode: difference;
+  }
+  .mono-mark {
+    font-family: var(--display); font-weight: 900; font-size: 22px; letter-spacing: 0;
+    border: 1.5px solid var(--ink); padding: 2px 6px 0; line-height: 1;
+  }
+  .hud nav { display: flex; gap: clamp(12px, 2vw, 28px); }
+  .hud nav a:hover { color: var(--amber); }
+  .hud .meta { display: flex; gap: 18px; color: var(--ink); }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--amber); margin-right: 6px; animation: blink 1.6s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0.2; } }
+
+  /* HERO */
+  .hero { position: relative; height: 100svh; min-height: 620px; overflow: hidden; }
+  #scope { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .name {
+    position: absolute; left: clamp(12px, 3vw, 40px); right: clamp(12px, 3vw, 40px); top: 50%;
+    translate: 0 -58%;
+    font-family: var(--display); font-weight: 900; text-transform: uppercase;
+    font-size: clamp(3.5rem, 19vw, 23rem); line-height: 0.8; letter-spacing: -0.01em;
+  }
+  .name span { display: block; overflow: hidden; }
+  .name span i { display: block; font-style: normal; translate: 0 105%; transition: translate 1s cubic-bezier(.2,.7,0,1); }
+  .name span:nth-child(2) i { transition-delay: 0.12s; color: transparent; -webkit-text-stroke: 2px var(--ink); }
+  .loaded .name span i { translate: 0 0; }
+
+  .signature { position: absolute; z-index: 5; pointer-events: none; width: min(62vw, 760px); right: 4vw; top: 22%; rotate: -8deg; }
+  .signature path { fill: none; stroke: var(--amber); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+
+  .tagline {
+    position: absolute; left: clamp(12px, 3vw, 40px); bottom: 150px; max-width: 32ch;
+    font-family: var(--serif); font-style: italic; font-size: clamp(1.4rem, 2.4vw, 2.2rem); line-height: 1.15; letter-spacing: 0;
+  }
+  .tagline em { color: var(--amber); font-style: italic; }
+
+  .channels {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid rgb(239 236 228 / 0.25);
+    background: rgb(12 13 11 / 0.72); backdrop-filter: blur(2px);
+  }
+  .ch { padding: 14px clamp(12px, 2vw, 24px) 18px; border-left: 1px solid rgb(239 236 228 / 0.12); }
+  .ch:first-child { border-left: 0; }
+  .ch small { display: block; color: var(--muted); font-size: 11px; }
+  .ch small b { color: var(--amber); font-weight: 500; margin-right: 6px; }
+  .ch strong { display: block; margin-top: 6px; font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 2.6vw, 2.4rem); line-height: 1; letter-spacing: 0.01em; }
+  .bar { height: 4px; background: var(--surface); margin-top: 8px; }
+  .bar i { display: block; height: 4px; background: var(--amber); width: 0; transition: width 1.4s cubic-bezier(.2,.7,0,1) .6s; }
+
+  /* LAPS */
+  .laps { padding: clamp(96px, 14vw, 200px) clamp(12px, 3vw, 40px) 80px; }
+  .laps header { display: flex; align-items: end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .laps h2 { font-family: var(--display); font-weight: 900; font-size: clamp(3.5rem, 11vw, 11rem); line-height: 0.82; text-transform: uppercase; }
+  .laps h2 span { color: transparent; -webkit-text-stroke: 1.5px var(--ink); }
+  .laps header p { color: var(--muted); max-width: 34ch; }
+  .lap-table { margin-top: 56px; }
+  .lap {
+    display: grid; grid-template-columns: 56px 1fr 170px 140px 110px; align-items: center; gap: 16px;
+    padding: 18px 0; border-top: 1px solid rgb(239 236 228 / 0.18);
+    opacity: 0; translate: 0 24px; transition: opacity .7s, translate .7s, background .25s, padding .25s;
+  }
+  .lap.in { opacity: 1; translate: 0 0; }
+  .lap:hover { background: var(--surface); padding-left: 16px; }
+  .lap:hover .pos { color: var(--amber); }
+  .pos { font-family: var(--display); font-weight: 900; font-size: 2rem; color: var(--muted); }
+  .lap h3 { font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 3.6vw, 3.2rem); line-height: 1; text-transform: uppercase; }
+  .lap .tag { color: var(--muted); }
+  .lap .tag b { color: var(--amber); font-weight: 400; }
+  .lap svg { width: 140px; height: 28px; }
+  .lap svg path { fill: none; stroke: var(--muted); stroke-width: 1.5; transition: stroke .25s; }
+  .lap:hover svg path { stroke: var(--amber); }
+
+  /* NOTE / WRITING */
+  .note { display: grid; grid-template-columns: 1fr 1.6fr; gap: 40px; padding: 120px clamp(12px, 3vw, 40px); background: var(--ink); color: var(--bg); }
+  .note small { color: #5c5a54; }
+  .note blockquote { font-family: var(--serif); font-style: italic; font-size: clamp(2rem, 4.4vw, 4.4rem); line-height: 1.05; letter-spacing: -0.01em; }
+  .note a { display: inline-block; margin-top: 28px; border-bottom: 2px solid var(--amber); padding-bottom: 2px; }
+
+  footer { padding: 80px clamp(12px, 3vw, 40px) 28px; }
+  footer .big { font-family: var(--display); font-weight: 900; font-size: clamp(4rem, 16vw, 20rem); line-height: 0.8; text-transform: uppercase; }
+  footer .row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 28px; color: var(--muted); }
+
+  .proto-flag { position: fixed; z-index: 30; left: 50%; translate: -50% 0; top: 56px; background: var(--amber); color: var(--bg); padding: 6px 10px; font-size: 11px; }
+
+  @media (max-width: 760px) {
+    .hud nav, .hud .meta .coord { display: none; }
+    .channels { grid-template-columns: 1fr 1fr; }
+    .ch:nth-child(3) { border-left: 0; }
+    .ch:nth-child(n+3) { border-top: 1px solid rgb(239 236 228 / 0.12); }
+    .tagline { bottom: 190px; }
+    .signature { width: 88vw; top: 30%; right: 2vw; }
+    .lap { grid-template-columns: 40px 1fr; }
+    .lap .tag, .lap svg, .lap .time { grid-column: 2; }
+    .note { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .name span i { translate: 0 0; }
+    .lap { opacity: 1; translate: 0 0; }
+  }
+</style>
+</head>
+<body>
+  <header class="hud">
+    <a href="#" class="mono-mark" aria-label="Beranda">MZ</a>
+    <nav aria-label="Utama"><a href="#laps">Proyek</a><a href="#note">Tulisan</a><a href="#">Tentang</a><a href="#">Kontak</a></nav>
+    <div class="meta"><span class="coord">−6.20, 106.82</span><span><span class="dot"></span><span id="clock">JKT --:--:--</span></span></div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="name">
+      <canvas id="scope" aria-hidden="true"></canvas>
+      <h1 class="name" id="name"><span><i>Muhammad</i></span><span><i>Zaidan</i></span></h1>
+
+      <!-- Placeholder signature: replace with a scan of the real one, vectorised. -->
+      <svg class="signature" viewBox="0 0 760 260" aria-hidden="true">
+        <path id="sig" d="M40 170 C 90 60, 150 40, 130 120 S 60 230, 120 210 S 230 80, 250 120 S 220 210, 270 190 C 310 170, 320 110, 340 130 C 355 150, 330 200, 370 190 C 410 178, 420 120, 450 125 C 480 130, 450 200, 495 192 C 540 184, 545 110, 585 118 C 625 126, 590 205, 640 196 C 680 188, 700 150, 735 140 M 300 225 C 420 205, 560 200, 720 210" />
+      </svg>
+
+      <p class="tagline">Merakit hal yang berpikir, dari <em>baris kode</em> sampai <em>jalur tembaga</em>.</p>
+
+      <div class="channels" role="list" aria-label="Telemetri langsung">
+        <div class="ch" role="listitem"><small><b>CH1</b>Sedang dikerjakan</small><strong>Personal OS v0.1</strong></div>
+        <div class="ch" role="listitem"><small><b>CH2</b>Tulisan bulan ini</small><strong data-count="3">00</strong></div>
+        <div class="ch" role="listitem"><small><b>CH3</b>Software / hardware</small><strong>62 / 38</strong><div class="bar"><i style="--w:62%"></i></div></div>
+        <div class="ch" role="listitem"><small><b>CH4</b>Frekuensi sinyal</small><strong id="freq">1.00 Hz</strong></div>
+      </div>
+    </section>
+
+    <section class="laps" id="laps" aria-labelledby="laps-title">
+      <header>
+        <h2 id="laps-title">Lap <span>terbaru</span></h2>
+        <p>Setiap proyek dicatat seperti lap: posisi, bidang, sinyalnya, dan berapa lama sampai garis finis. (Isi contoh.)</p>
+      </header>
+      <div class="lap-table">
+        <a class="lap" href="#"><span class="pos">P1</span><h3>Monitor panel surya ESP32</h3><span class="tag"><b>●</b> Energi · Hardware</span><svg viewBox="0 0 140 28"><path d="M0 22 L20 20 L35 8 L50 12 L70 4 L90 9 L110 6 L140 3"/></svg><span class="time">3 bln 12 hr</span></a>
+        <a class="lap" href="#"><span class="pos">P2</span><h3>HMI SCADA lini produksi</h3><span class="tag"><b>●</b> Industri · Software</span><svg viewBox="0 0 140 28"><path d="M0 14 L20 14 L22 4 L40 4 L42 24 L60 24 L62 14 L90 14 L92 6 L120 6 L122 14 L140 14"/></svg><span class="time">5 bln</span></a>
+        <a class="lap" href="#"><span class="pos">P3</span><h3>Firmware motor STM32</h3><span class="tag"><b>●</b> Embedded</span><svg viewBox="0 0 140 28"><path d="M0 14 Q 10 0 20 14 T 40 14 T 60 14 T 80 14 T 100 14 T 120 14 T 140 14"/></svg><span class="time">2 bln 4 hr</span></a>
+        <a class="lap" href="#"><span class="pos">P4</span><h3>Personal OS</h3><span class="tag"><b>●</b> Web · Software</span><svg viewBox="0 0 140 28"><path d="M0 24 L30 22 L50 18 L70 19 L90 12 L110 10 L125 6 L140 2"/></svg><span class="time">berjalan</span></a>
+      </div>
+    </section>
+
+    <section class="note" id="note" aria-labelledby="note-title">
+      <div><small id="note-title">Catatan terakhir · 18 Okt 2026 · 6 mnt baca</small></div>
+      <div>
+        <blockquote>“Kenapa saya lebih percaya osiloskop daripada log aplikasi.”</blockquote>
+        <a href="#">Baca catatannya →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p class="big" aria-hidden="true">Zaidan</p>
+    <div class="row"><span>Dokumentasi hidup, diperbarui terus.</span><span>Email · GitHub · RSS</span></div>
+  </footer>
+
+  <p class="proto-flag">PROTOTIPE · isi contoh</p>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Clock: Jakarta time, the site is "on air".
+  const clock = document.getElementById('clock')
+  const tick = () => (clock.textContent = 'JKT ' + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Jakarta' }) + ' WIB')
+  tick(); setInterval(tick, 1000)
+
+  // Oscilloscope: the live thing. Pointer X sets frequency, Y sets amplitude.
+  const cv = document.getElementById('scope'), ctx = cv.getContext('2d')
+  const freqEl = document.getElementById('freq')
+  let W, H, f = 1, a = 0.5, ft = 1, at = 0.5, t = 0
+  const size = () => { const r = devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * r; cv.height = H * r; ctx.setTransform(r, 0, 0, r, 0, 0) }
+  addEventListener('resize', size); size()
+  addEventListener('pointermove', (e) => { ft = 0.4 + (e.clientX / innerWidth) * 3.2; at = 0.15 + (1 - e.clientY / innerHeight) * 0.85 })
+
+  function frame() {
+    f += (ft - f) * 0.06; a += (at - a) * 0.06; t += 0.016
+    ctx.clearRect(0, 0, W, H)
+    // scope divisions
+    ctx.strokeStyle = 'rgba(239,236,228,0.07)'; ctx.lineWidth = 1
+    for (let i = 1; i < 10; i++) { ctx.beginPath(); ctx.moveTo((W / 10) * i, 0); ctx.lineTo((W / 10) * i, H); ctx.stroke() }
+    for (let i = 1; i < 8; i++) { ctx.beginPath(); ctx.moveTo(0, (H / 8) * i); ctx.lineTo(W, (H / 8) * i); ctx.stroke() }
+    const mid = H * 0.5, amp = H * 0.22 * a
+    const trace = (color, width, phase, k, noise) => {
+      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath()
+      for (let x = 0; x <= W; x += 3) {
+        const u = x / W
+        const y = mid + amp * k * (Math.sin(u * Math.PI * 2 * 3 * f + t * 2.2 + phase) + 0.28 * Math.sin(u * Math.PI * 2 * 9 * f - t * 3.1)) + (noise ? (Math.random() - 0.5) * noise : 0)
+        x ? ctx.lineTo(x, y) : ctx.moveTo(x, y)
+      }
+      ctx.stroke()
+    }
+    trace('rgba(239,236,228,0.18)', 1, 2.1, 0.55, 0)
+    trace('rgba(239,236,228,0.12)', 1, 4.2, 1.25, 0)
+    ctx.shadowColor = '#ffb21e'; ctx.shadowBlur = 14
+    trace('#ffb21e', 2.2, 0, 1, 2.2)
+    ctx.shadowBlur = 0
+    freqEl.textContent = f.toFixed(2) + ' Hz'
+    if (!reduce) requestAnimationFrame(frame)
+  }
+  frame()
+
+  // Entrance: name rises, signature writes itself, counters and bars fill.
+  const sig = document.getElementById('sig'), len = sig.getTotalLength()
+  sig.style.strokeDasharray = len; sig.style.strokeDashoffset = reduce ? 0 : len
+  requestAnimationFrame(() => {
+    document.body.classList.add('loaded')
+    if (!reduce) { sig.style.transition = 'stroke-dashoffset 2.4s cubic-bezier(.6,.05,.2,1) .7s'; sig.style.strokeDashoffset = 0 }
+    document.querySelectorAll('.bar i').forEach((b) => (b.style.width = b.style.getPropertyValue('--w')))
+    document.querySelectorAll('[data-count]').forEach((el) => {
+      const n = +el.dataset.count; let i = 0
+      const step = () => { el.textContent = String(i).padStart(2, '0'); if (i++ < n) setTimeout(step, reduce ? 0 : 160) }
+      setTimeout(step, 900)
+    })
+  })
+
+  // Laps slide in one after another as they reach the screen.
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return
+    const i = [...e.target.parentNode.children].indexOf(e.target)
+    e.target.style.transitionDelay = i * 80 + 'ms'
+    e.target.classList.add('in'); io.unobserve(e.target)
+  }), { threshold: 0.2 })
+  document.querySelectorAll('.lap').forEach((l) => io.observe(l))
+</script>
+</body>
+</html>
