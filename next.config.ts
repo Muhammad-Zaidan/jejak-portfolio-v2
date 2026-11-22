@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  // Projects became writing in the 'project' category; old project links land on the article.
+  redirects: async () => [{ source: "/:lang(id|en)/projects/:slug", destination: "/:lang/writing/:slug", permanent: true }],
   // shortcut: this PC's LAN addresses so a phone on the same network can open the dev server; update if the router hands out new ones.
   // plus temporary Cloudflare quick tunnels for viewing the dev server from a phone off-network
   allowedDevOrigins: ["192.168.8.132", "172.15.7.248", "*.trycloudflare.com"],
