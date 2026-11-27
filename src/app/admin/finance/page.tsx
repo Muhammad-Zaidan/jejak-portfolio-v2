@@ -73,6 +73,32 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
   const need = P.need(want)
   const pays = nextPays(incomes.data!, now)
 
+  const day = ([d, list]: [string, typeof monthTx]) => {
+          const net = list.reduce((a, t) => a + (kind.get(t.category_id) === 'income' ? 1 : -1) * Number(t.amount), 0)
+          return (
+            <div key={d} className="fin-day">
+              <p className="fin-day-head"><span className="capitalize">{dayLabel(d)}</span><span className={`tabular-nums ${net < 0 ? '' : 'fin-in'}`}>{net < 0 ? '−' : '+'}{idr(Math.abs(net))}</span></p>
+              <ul>
+                {list.map((t) => {
+                  const inc = kind.get(t.category_id) === 'income'
+                  return (
+                    <li key={t.id} className="fin-row">
+                      <span className="fin-row-main">
+                        <span className="fin-row-title">{t.note || name.get(t.category_id)}{!t.reviewed && <span className="fin-flag">perlu judul</span>}</span>
+                        <span className="note">{name.get(t.category_id)} · {name.get(t.account_id)}</span>
+                      </span>
+                      <span className={`tabular-nums fin-row-amount ${inc ? 'fin-in' : ''}`}>{inc ? '+' : '−'}{idr(Number(t.amount))}</span>
+                      <form action={deleteTransaction}>
+                        <input type="hidden" name="id" value={t.id} /><input type="hidden" name="m" value={m} />
+                        <button className="fin-del" aria-label="Hapus transaksi" title="Hapus">×</button>
+                      </form>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )
+        }
   return (
     <div className="fin grid gap-10">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -164,32 +190,14 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
           <h2 className="text-2xl font-semibold">Arus kas</h2>
           {unclear > 0 && <Link href="/admin/finance/review" className="flex items-center gap-2 text-sm"><span className="badge">{unclear}</span> perlu judul →</Link>}
         </div>
-        {[...days.entries()].map(([d, list]) => {
-          const net = list.reduce((a, t) => a + (kind.get(t.category_id) === 'income' ? 1 : -1) * Number(t.amount), 0)
-          return (
-            <div key={d} className="fin-day">
-              <p className="fin-day-head"><span className="capitalize">{dayLabel(d)}</span><span className={`tabular-nums ${net < 0 ? '' : 'fin-in'}`}>{net < 0 ? '−' : '+'}{idr(Math.abs(net))}</span></p>
-              <ul>
-                {list.map((t) => {
-                  const inc = kind.get(t.category_id) === 'income'
-                  return (
-                    <li key={t.id} className="fin-row">
-                      <span className="fin-row-main">
-                        <span className="fin-row-title">{t.note || name.get(t.category_id)}{!t.reviewed && <span className="fin-flag">perlu judul</span>}</span>
-                        <span className="note">{name.get(t.category_id)} · {name.get(t.account_id)}</span>
-                      </span>
-                      <span className={`tabular-nums fin-row-amount ${inc ? 'fin-in' : ''}`}>{inc ? '+' : '−'}{idr(Number(t.amount))}</span>
-                      <form action={deleteTransaction}>
-                        <input type="hidden" name="id" value={t.id} /><input type="hidden" name="m" value={m} />
-                        <button className="fin-del" aria-label="Hapus transaksi" title="Hapus">×</button>
-                      </form>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          )
-        })}
+        {/* the cash flow is an archive: the two latest days in view, the rest one tap away */}
+        {[...days.entries()].slice(0, 2).map(day)}
+        {days.size > 2 && (
+          <details className="fin-archive">
+            <summary>Lihat arsip · {days.size - 2} hari lagi di {monthLabel}</summary>
+            <div className="mt-3 grid gap-3">{[...days.entries()].slice(2).map(day)}</div>
+          </details>
+        )}
         {monthTx.length === 0 && <p className="text-muted">Belum ada transaksi di bulan ini.</p>}
       </section>
 

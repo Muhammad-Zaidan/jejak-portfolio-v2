@@ -934,3 +934,7 @@ html, body { overflow-x: clip; }
 }
 
 .admin .dash-balance { display: grid; gap: 0.15rem; margin-top: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--line); }
+
+.admin .fin-archive > summary { cursor: pointer; list-style: none; padding: 0.8rem 1rem; border-radius: 1.1rem; border: 1px dashed var(--line); color: var(--soft); text-align: center; transition: color 150ms, border-color 150ms; }
+.admin .fin-archive > summary:hover { color: var(--fg); border-color: var(--fg); }
+.admin .fin-archive[open] > summary { border-style: solid; }
