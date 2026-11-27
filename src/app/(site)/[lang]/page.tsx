@@ -83,7 +83,7 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
           )}
         </Chapter>
         )}
-        {shown('siapa') && <Traits words={h.words as [string, string][]} stories={h.stories} hints={h.eggs} />}
+        {shown('siapa') && <Traits words={h.words as [string, string][]} stories={h.stories as [string, string][]} hints={h.eggs} />}
 
         {shown('apa') && (
         <Chapter id="apa" label={h.what}>
