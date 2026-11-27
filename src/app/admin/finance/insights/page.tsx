@@ -54,7 +54,7 @@ export default async function Insights() {
         </div>
       </section>
 
-      <section className="card overflow-x-auto">
+      <section className="card overflow-x-auto [-webkit-overflow-scrolling:touch]">
         <table className="w-full min-w-[34rem] text-left">
           <thead className="note"><tr><th className="py-2 font-normal" />{A.months.map((m) => <th key={m.month} className="text-right font-normal capitalize">{monthName(m.month, 'long')}</th>)}</tr></thead>
           <tbody className="tabular-nums">

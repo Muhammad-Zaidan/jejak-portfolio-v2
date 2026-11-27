@@ -66,7 +66,7 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
         </div>
       </header>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="dash-quick grid gap-4 lg:grid-cols-2">
         <form action={quickCapture} className="card grid gap-2">
           <label htmlFor="capture" className="card-title">Catat cepat</label>
           <textarea id="capture" name="text" rows={2} className="field" placeholder="Baris pertama jadi judul…" required />
@@ -100,13 +100,13 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
         </form>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="dash-cards grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <div className="card">
           <CardHead title="Agenda" href="/admin/calendar" />
           <Agenda events={events} d0={d0} d1={d1} />
         </div>
 
-        <div className="card">
+        <div className="card dash-money">
           <CardHead title="Uang bulan ini" href="/admin/finance" />
           <p className="note mt-3">Sisa jatah jajan hari ini</p>
           <p className={`text-4xl tabular-nums ${P.leftToday < 0 ? 'text-accent' : ''}`}>{idr(P.leftToday)}</p>

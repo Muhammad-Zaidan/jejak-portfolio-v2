@@ -55,7 +55,7 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
         </nav>
       </header>
 
-      <dl className="grid gap-6 sm:grid-cols-3">
+      <dl className="fin-stats grid gap-6 sm:grid-cols-3">
         <div><dt className="note">Pemasukan</dt><dd className="text-3xl">{idr(income)}</dd></div>
         <div><dt className="note">Pengeluaran</dt><dd className="text-3xl">{idr(expense)}</dd></div>
         <div><dt className="note">Selisih</dt><dd className={`text-3xl ${income - expense < 0 ? 'text-accent' : ''}`}>{idr(income - expense)}</dd></div>
@@ -194,7 +194,7 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
 
       <section>
         <h2 className="text-2xl font-semibold">Transaksi</h2>
-        <table className="mt-4 w-full text-left">
+        <table className="tx-table mt-4 w-full text-left">
           <thead className="note"><tr><th className="py-2 font-normal">Tanggal</th><th className="font-normal">Kategori</th><th className="font-normal">Akun</th><th className="font-normal">Catatan</th><th className="font-normal text-right">Jumlah</th><th /></tr></thead>
           <tbody>
             {monthTx.map((t) => {

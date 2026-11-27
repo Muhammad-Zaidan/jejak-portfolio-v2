@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: LayoutProps<'/admin'>) {
       </head>
       <body className="v2 admin min-h-dvh">
         <CommandPalette />
-        <div className="mx-auto grid max-w-[1320px] gap-8 px-4 py-6 sm:px-8 lg:grid-cols-[14rem_1fr] lg:gap-14">
+        <div className="mx-auto grid max-w-[1320px] grid-cols-[minmax(0,1fr)] gap-8 px-4 py-6 sm:px-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14">
           <aside className="admin-aside lg:sticky lg:top-6 lg:self-start">
             <Link href="/admin" className="inline-flex" aria-label="Admin">
               <Logo className="h-7" />

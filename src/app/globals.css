@@ -859,3 +859,36 @@ html, body { overflow-x: clip; }
 .theme-toggle { display: inline-grid; place-items: center; width: 2.4rem; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--line); color: var(--fg); background: transparent; transition: background 200ms, rotate 500ms cubic-bezier(.16, 1, .3, 1); }
 .theme-toggle:hover { background: var(--tint); rotate: 25deg; }
 .theme-toggle svg { width: 1.15rem; height: 1.15rem; }
+
+/* Personal OS on a phone: the transactions table becomes a list of rows (title and amount, then the details) */
+@media (max-width: 640px) {
+  .admin .tx-table thead { display: none; }
+  .admin .tx-table tr { display: grid; grid-template-columns: 1fr auto; column-gap: 0.75rem; padding: 0.75rem 0; }
+  .admin .tx-table td { padding: 0 !important; }
+  .admin .tx-table td:nth-child(1) { grid-row: 2; grid-column: 1; font-size: 0.8rem; }
+  .admin .tx-table td:nth-child(2) { grid-row: 2; grid-column: 1; margin-left: 6.2rem; font-size: 0.8rem; color: var(--soft); }
+  .admin .tx-table td:nth-child(3) { display: none; }
+  .admin .tx-table td:nth-child(4) { grid-row: 1; grid-column: 1; }
+  .admin .tx-table td:nth-child(5) { grid-row: 1; grid-column: 2; font-weight: 600; }
+  .admin .tx-table td:nth-child(6) { grid-row: 2; grid-column: 2; justify-self: end; }
+}
+
+/* grid items may shrink to the screen; without this one wide line widens the whole column past the phone edge */
+.admin main .grid > * { min-width: 0; }
+
+/* Personal OS on a phone: what is checked most comes first, numbers sit compactly side by side */
+@media (max-width: 767px) {
+  .admin .dash-cards { order: 1; }
+  .admin .dash-quick { order: 2; }
+  .admin .dash-money { order: -1; border-color: color-mix(in srgb, var(--orange) 40%, var(--line)); }
+  .admin .fin-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 1rem; padding: 0.9rem 1rem; border: 1px solid var(--line); border-radius: 1.1rem; }
+  .admin .fin-stats dd { font-size: 1.1rem !important; line-height: 1.3; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .admin .fin-stats > div:last-child { grid-column: 1 / -1; padding-top: 0.6rem; border-top: 1px solid var(--line); }
+  .admin .fin-stats > div:last-child dd { font-size: 1.6rem !important; }
+  /* "always like this" on the review list: tick and words on one line, the keyword field under them */
+  .admin .card .check { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 0.5rem; row-gap: 0.4rem; }
+  .admin .card .check .field { grid-column: 1 / -1; width: 100% !important; }
+  .admin .fin-stats dt { font-size: 0.72rem; }
+  .admin header h1 { line-height: 1; }
+  .admin form.flex, .admin .flex.flex-wrap { row-gap: 0.5rem; }
+}
