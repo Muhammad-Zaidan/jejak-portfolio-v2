@@ -892,3 +892,45 @@ html, body { overflow-x: clip; }
   .admin header h1 { line-height: 1; }
   .admin form.flex, .admin .flex.flex-wrap { row-gap: 0.5rem; }
 }
+
+/* Money page, laid out like the owner's sheet: balances, a one-line log, month, cash flow by day, plans */
+.admin .fin-balance { display: grid; gap: 0.4rem; padding: 1.4rem 1.4rem 1.2rem; border-radius: 1.4rem; background: linear-gradient(140deg, color-mix(in srgb, var(--orange) 16%, var(--tint)), var(--tint) 60%); border: 1px solid var(--line); }
+.admin .fin-total { margin: 0; font-size: clamp(2.6rem, 7vw, 4.2rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.admin .fin-accounts { list-style: none; margin: 0.8rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.admin .fin-accounts li { display: grid; gap: 0.1rem; padding: 0.55rem 0.9rem; border-radius: 0.9rem; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 1px solid var(--line); min-width: 7.5rem; }
+.admin .fin-log { display: grid; gap: 0.5rem; padding: 1rem; border-radius: 1.2rem; border: 1px solid var(--line); }
+.admin .fin-log-row { display: grid; gap: 0.5rem; grid-template-columns: 11rem 1fr; }
+.admin .fin-log-row:last-child { grid-template-columns: 1fr 10rem 10rem auto; }
+.admin .fin-amount { font-size: 1.15rem; font-weight: 600; }
+.admin .fin-month { display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem; font-weight: 500; }
+.admin .fin-step { display: grid; place-items: center; width: 2.2rem; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--line); font-size: 1.2rem; }
+.admin .fin-step:hover { background: var(--tint); }
+.admin .fin-allow { display: grid; gap: 1rem; padding: 1.25rem; border-radius: 1.2rem; background: var(--tint); }
+@media (min-width: 768px) { .admin .fin-allow { grid-template-columns: 1fr auto; align-items: end; } }
+.admin .fin-need { margin: 0; padding-top: 0.9rem; border-top: 1px solid var(--line); grid-column: 1 / -1; }
+.admin .fin-in { color: #2f9e62; }
+.admin .fin-day { border: 1px solid var(--line); border-radius: 1.1rem; overflow: hidden; }
+.admin .fin-day-head { display: flex; justify-content: space-between; gap: 1rem; margin: 0; padding: 0.6rem 1rem; background: var(--tint); font-size: 0.85rem; color: var(--soft); }
+.admin .fin-day ul { list-style: none; margin: 0; padding: 0; }
+.admin .fin-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 0.75rem; padding: 0.7rem 0.6rem 0.7rem 1rem; border-top: 1px solid var(--line); }
+.admin .fin-row:first-child { border-top: 0; }
+.admin .fin-row-main { display: grid; gap: 0.1rem; min-width: 0; }
+.admin .fin-row-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin .fin-row-amount { font-weight: 600; }
+.admin .fin-flag { margin-left: 0.5rem; padding: 0.05rem 0.45rem; border-radius: 999px; font-size: 0.7rem; color: var(--orange); border: 1px solid color-mix(in srgb, var(--orange) 45%, transparent); }
+.admin .fin-del { width: 1.8rem; aspect-ratio: 1; border-radius: 50%; color: var(--soft); opacity: 0.5; transition: opacity 150ms, background 150ms; }
+.admin .fin-del:hover { opacity: 1; background: var(--tint); color: var(--orange); }
+.admin .fin-more { margin-top: 0.75rem; }
+.admin .fin-more > summary, .admin .fin-fold > summary { cursor: pointer; color: var(--soft); list-style: none; }
+.admin .fin-more > summary:hover, .admin .fin-fold > summary:hover { color: var(--fg); }
+.admin .fin-fold { padding: 1rem 1.1rem; border: 1px solid var(--line); border-radius: 1.1rem; }
+.admin .fin-fold > summary::before, .admin .fin-more > summary::before { content: '▸ '; }
+.admin .fin-fold[open] > summary::before, .admin .fin-more[open] > summary::before { content: '▾ '; }
+@media (max-width: 640px) {
+  .admin .fin-log-row { grid-template-columns: 1fr; }
+  .admin .fin-log-row:last-child { grid-template-columns: 1fr 1fr; }
+  .admin .fin-log-row:last-child .btn { grid-column: 1 / -1; }
+  .admin .fin-accounts li { flex: 1 1 calc(50% - 0.5rem); min-width: 0; }
+}
+
+.admin .dash-balance { display: grid; gap: 0.15rem; margin-top: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--line); }
