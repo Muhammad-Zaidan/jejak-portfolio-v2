@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { PageHead, wrap } from '@/components/site'
+import { PageHead, socials, wrap } from '@/components/site'
 import { getSite } from '@/lib/content'
 import { dict, hasLocale, type Locale } from '@/lib/i18n'
 
@@ -14,11 +14,7 @@ export default async function About({ params }: PageProps<'/[lang]/about'>) {
   const lang: Locale = hasLocale(raw) ? raw : 'id'
   const t = dict[lang]
   const site = await getSite(lang)
-  const links = [
-    ['GitHub', site.github],
-    ['LinkedIn', site.linkedin],
-    ['Instagram', site.instagram],
-  ].filter(([, url]) => url)
+  const links = socials(site)
   return (
     <>
       <PageHead index={t.nav.about} title={t.aboutTitle} />

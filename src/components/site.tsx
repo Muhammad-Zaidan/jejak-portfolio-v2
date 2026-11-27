@@ -41,6 +41,10 @@ export function Header({ lang, name }: { lang: Locale; name: string }) {
   )
 }
 
+/** Profile links that are filled in, in display order. */
+export const socials = (site: Site) =>
+  ([['LinkedIn', site.linkedin], ['WhatsApp', site.whatsapp], ['Instagram', site.instagram], ['GitHub', site.github]] as const).filter(([, href]) => href)
+
 export function Footer({ lang, site }: { lang: Locale; site: Site }) {
   return (
     <footer className={`${pad} flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line)] py-8 text-sm text-[var(--soft)]`}>
@@ -48,9 +52,11 @@ export function Footer({ lang, site }: { lang: Locale; site: Site }) {
         <LogoMark className="size-6" />
         {site.name} · {site.footer}
       </span>
-      <span className="flex gap-6">
+      <span className="flex flex-wrap gap-x-6 gap-y-2">
         <a className="link" href={`mailto:${site.email}`}>{site.email}</a>
-        <a className="link" href={site.github}>GitHub</a>
+        {socials(site).map(([label, href]) => (
+          <a key={label} className="link" href={href} target="_blank" rel="noopener noreferrer">{label}</a>
+        ))}
         <a className="link" href={`/${lang}/rss.xml`}>RSS</a>
       </span>
     </footer>

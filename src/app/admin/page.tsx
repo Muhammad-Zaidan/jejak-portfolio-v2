@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { eventDay, eventTime, listEvents, type CalEvent } from '@/lib/gcal'
 import { idr, requireOwner, today, TZ } from '@/lib/owner'
+import { planFrom } from '@/lib/plan'
 import { addTransaction, quickCapture } from './actions'
 
 /**
@@ -15,7 +16,7 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
   const month = d0.slice(0, 7)
   const nextMonth = new Date(Date.UTC(+month.slice(0, 4), +month.slice(5, 7), 1)).toISOString().slice(0, 10)
 
-  const [events, tx, budgets, drafts, notes, comments, messages, accounts, categories] = await Promise.all([
+  const [events, tx, budgets, drafts, notes, comments, messages, accounts, categories, allTx, allAccounts, allCategories, incomes, goals] = await Promise.all([
     listEvents(db, d0, d1).catch((e: Error) => e),
     db.from('transactions').select('amount, date, account_id, categories!inner(kind)').eq('categories.kind', 'expense').gte('date', `${month}-01`).lt('date', nextMonth).order('created_at', { ascending: false }),
     db.from('budgets').select('amount').eq('month', `${month}-01`),
@@ -25,11 +26,19 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
     db.from('messages').select('id, name, body, created_at').order('created_at', { ascending: false }).limit(3),
     db.from('accounts').select('id, name').order('name'),
     db.from('categories').select('id, name').eq('kind', 'expense').order('name'),
+    // for today's spending allowance
+    db.from('transactions').select('amount, date, account_id, category_id'),
+    db.from('accounts').select('id, opening_balance'),
+    db.from('categories').select('id, kind'),
+    db.from('incomes').select('amount, day, starts, ends'),
+    db.from('goals').select('id, name, price, deadline'),
   ])
 
   const spent = (tx.data ?? []).reduce((a, t) => a + Number(t.amount), 0)
   const spentToday = (tx.data ?? []).filter((t) => t.date === d0).reduce((a, t) => a + Number(t.amount), 0)
   const budget = (budgets.data ?? []).reduce((a, b) => a + Number(b.amount), 0)
+  const monthEnd = new Date(Date.UTC(+month.slice(0, 4), +month.slice(5, 7), 0)).toISOString().slice(0, 10)
+  const P = planFrom({ tx: allTx.data ?? [], categories: allCategories.data ?? [], accounts: allAccounts.data ?? [], incomes: incomes.data ?? [], goals: goals.data ?? [], today: d0, until: monthEnd })
   const answered = new Set((comments.data ?? []).filter((c) => c.by_owner && c.parent_id).map((c) => c.parent_id))
   const waiting = (comments.data ?? []).filter((c) => !c.by_owner && !answered.has(c.id))
   // the quick expense form starts on the account used last
@@ -94,7 +103,10 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
 
         <div className="card">
           <CardHead title="Uang bulan ini" href="/admin/finance" />
-          <dl className="mt-3 grid grid-cols-2 gap-4">
+          <p className="note mt-3">Sisa jatah jajan hari ini</p>
+          <p className={`text-4xl tabular-nums ${P.leftToday < 0 ? 'text-accent' : ''}`}>{idr(P.leftToday)}</p>
+          <p className="note">dari {idr(P.perDay)}/hari sampai akhir bulan, target tetap aman</p>
+          <dl className="mt-4 grid grid-cols-2 gap-4">
             <div><dt className="note">Hari ini</dt><dd className="text-2xl">{idr(spentToday)}</dd></div>
             <div><dt className="note">Bulan ini</dt><dd className="text-2xl">{idr(spent)}</dd></div>
           </dl>

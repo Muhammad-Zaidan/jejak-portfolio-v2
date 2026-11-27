@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { summarize } from '@/lib/money'
+import { planFrom } from '@/lib/plan'
 import { idr, requireOwner, today } from '@/lib/owner'
-import { addAccount, addCategory, addTransaction, deleteTransaction, setBudget } from '../actions'
+import { addAccount, addCategory, addGoal, addIncome, addTransaction, deleteGoal, deleteIncome, deleteTransaction, setBudget } from '../actions'
 
 const shift = (m: string, by: number) => {
   const d = new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7) - 1 + by, 1))
@@ -10,17 +11,19 @@ const shift = (m: string, by: number) => {
 
 export default async function Finance({ searchParams }: PageProps<'/admin/finance'>) {
   const db = await requireOwner()
-  const { m: raw } = await searchParams
+  const { m: raw, until: rawUntil } = await searchParams
   const m = typeof raw === 'string' && /^\d{4}-\d{2}$/.test(raw) ? raw : today().slice(0, 7)
 
-  const [accounts, categories, budgets, tx] = await Promise.all([
+  const [accounts, categories, budgets, tx, incomes, goals] = await Promise.all([
     db.from('accounts').select('*').order('name'),
     db.from('categories').select('*').order('kind').order('name'),
     db.from('budgets').select('*').eq('month', `${m}-01`),
     // shortcut: loads every transaction to compute balances; fine for years of personal use, page it past ~50k rows.
     db.from('transactions').select('*').order('date', { ascending: false }).order('created_at', { ascending: false }),
+    db.from('incomes').select('*').order('starts'),
+    db.from('goals').select('*').order('created_at'),
   ])
-  for (const r of [accounts, categories, budgets, tx]) if (r.error) throw new Error(r.error.message)
+  for (const r of [accounts, categories, budgets, tx, incomes, goals]) if (r.error) throw new Error(r.error.message)
   const A = accounts.data!, C = categories.data!, T = tx.data!
   const { balance, byCategory, income, expense } = summarize(T, C, A, m)
   const budgetOf = new Map(budgets.data!.map((b) => [b.category_id, Number(b.amount)]))
@@ -28,6 +31,14 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
   const monthTx = T.filter((t) => t.date.startsWith(m))
   const monthLabel = new Date(`${m}-01T00:00:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
   const ready = A.length > 0 && C.length > 0
+
+  // the plan: allowance until a chosen date (default: end of this month), goals, and recurring income
+  const now = today()
+  const monthEnd = new Date(Date.UTC(+now.slice(0, 4), +now.slice(5, 7), 0)).toISOString().slice(0, 10)
+  const until = typeof rawUntil === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawUntil) && rawUntil >= now ? rawUntil : monthEnd
+  const P = planFrom({ tx: T, categories: C, accounts: A, incomes: incomes.data!, goals: goals.data!, today: now, until })
+  const spend = P.spend
+  const longDate = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
     <div className="grid gap-14">
@@ -47,6 +58,80 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
         <div><dt className="note">Pengeluaran</dt><dd className="text-3xl">{idr(expense)}</dd></div>
         <div><dt className="note">Selisih</dt><dd className={`text-3xl ${income - expense < 0 ? 'text-accent' : ''}`}>{idr(income - expense)}</dd></div>
       </dl>
+
+      <section className="grid gap-8">
+        <div className="grid gap-6 bg-surface p-5 sm:grid-cols-[1fr_auto] sm:items-end">
+          <div>
+            <p className="note">Boleh jajan per hari sampai {longDate(until)}</p>
+            <p className="text-5xl font-semibold tabular-nums">{idr(P.perDay)}</p>
+            <p className="note mt-2">
+              {idr(P.spendable)} untuk {P.days} hari · dana darurat {idr(P.reserve)} tidak disentuh
+              {P.setAside > 0 && <> · sisihkan {idr(P.setAside)}/bulan untuk target</>}
+              {spend === 0 && <> · belum ada data pengeluaran 3 bulan terakhir, jadi dana darurat masih 0</>}
+            </p>
+          </div>
+          <form className="flex items-end gap-2">
+            <input type="hidden" name="m" value={m} />
+            <label className="grid gap-1"><span className="note">Sampai tanggal</span><input type="date" name="until" defaultValue={until} min={now} className="field" /></label>
+            <button className="btn btn-quiet">Hitung</button>
+          </form>
+        </div>
+
+        <div className="grid gap-10 md:grid-cols-2">
+          <div>
+            <h2 className="text-2xl font-semibold">Target</h2>
+            <ul className="mt-4">
+              {P.goals.map((g) => (
+                <li key={g.id} className="grid gap-1 border-t border-ink/20 py-3">
+                  <div className="flex justify-between gap-3"><span>{g.name}</span><span className="tabular-nums">{idr(g.price)}</span></div>
+                  <p className={`note ${g.onTrack ? '' : 'text-accent'}`}>
+                    {g.buy ? (g.buy === now ? 'Bisa dibeli sekarang' : `Paling cepat terbeli ${longDate(g.buy)}`) : 'Belum terjangkau dalam 3 tahun dengan pola sekarang'}
+                    {g.monthly > 0 && <> · sisihkan {idr(g.monthly)}/bulan</>}
+                    {g.deadline && <> · tenggat {longDate(g.deadline)}{!g.onTrack && ' (tidak terkejar)'}</>}
+                  </p>
+                  <form action={deleteGoal}>
+                    <input type="hidden" name="id" value={g.id} /><input type="hidden" name="m" value={m} />
+                    <button className="note lift">hapus</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+            <form action={addGoal} className="mt-4 grid grid-cols-[1fr_1fr_auto] items-end gap-2">
+              <input type="hidden" name="m" value={m} />
+              <label className="col-span-full grid gap-1"><span className="note">Nama</span><input name="name" placeholder="Printer 3D" className="field" required /></label>
+              <label className="grid gap-1"><span className="note">Harga (Rp)</span><input name="price" inputMode="numeric" placeholder="5000000" className="field" required /></label>
+              <label className="grid gap-1"><span className="note">Tenggat (opsional)</span><input type="date" name="deadline" className="field" /></label>
+              <button className="btn btn-quiet">Tambah</button>
+            </form>
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold">Pendapatan rutin</h2>
+            <ul className="mt-4">
+              {incomes.data!.map((i) => (
+                <li key={i.id} className="flex items-center justify-between gap-3 border-t border-ink/20 py-3">
+                  <span>{i.name || 'Pendapatan'} <span className="note">tiap tgl {i.day}{i.ends ? `, sampai ${longDate(i.ends)}` : ''}</span></span>
+                  <span className="flex items-center gap-3">
+                    <span className="tabular-nums">{idr(Number(i.amount))}</span>
+                    <form action={deleteIncome}>
+                      <input type="hidden" name="id" value={i.id} /><input type="hidden" name="m" value={m} />
+                      <button className="note lift">hapus</button>
+                    </form>
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <form action={addIncome} className="mt-4 grid grid-cols-[1fr_1fr_4.5rem] items-end gap-2">
+              <input type="hidden" name="m" value={m} />
+              <label className="grid gap-1"><span className="note">Nama</span><input name="name" placeholder="Uang saku" className="field" /></label>
+              <label className="grid gap-1"><span className="note">Jumlah (Rp)</span><input name="amount" inputMode="numeric" placeholder="3500000" className="field" required /></label>
+              <label className="grid gap-1"><span className="note">Tgl</span><input name="day" type="number" min={1} max={31} defaultValue={25} className="field" /></label>
+              <label className="grid gap-1"><span className="note">Mulai</span><input type="date" name="starts" defaultValue={now} className="field" /></label>
+              <label className="grid gap-1"><span className="note">Berakhir (opsional)</span><input type="date" name="ends" className="field" /></label>
+              <button className="btn btn-quiet">Tambah</button>
+            </form>
+          </div>
+        </div>
+      </section>
 
       {ready ? (
         <form action={addTransaction} className="grid gap-3 bg-surface p-4 sm:grid-cols-[9rem_10rem_1fr_1fr_1.5fr_auto] sm:items-end">

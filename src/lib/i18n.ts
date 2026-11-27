@@ -6,7 +6,10 @@ export const site = {
   name: process.env.NEXT_PUBLIC_SITE_NAME ?? 'Muhammad Zaidan',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'halo@example.com',
-  github: process.env.NEXT_PUBLIC_GITHUB_URL ?? 'https://github.com',
+  github: process.env.NEXT_PUBLIC_GITHUB_URL ?? 'https://github.com/Muhammad-Zaidan',
+  linkedin: 'https://www.linkedin.com/in/Muhammad_zaidan',
+  instagram: 'https://www.instagram.com/zaidannn.__',
+  whatsapp: 'https://wa.me/6289652094251',
 }
 
 const id = {
@@ -70,7 +73,7 @@ const id = {
     talkForm: 'Atau kirim pesan lewat formulir',
     sample: 'Contoh isi. Akan diganti data asli setelah Supabase tersambung.',
     how: 'Bagaimana',
-    howIntro: 'Bagian ini sengaja berantakan. Seret kartunya ke titik-titik di garis bawah, dengan urutanmu sendiri.',
+    howIntro: 'Gulir pelan-pelan. Begini kekacauan berubah jadi sesuatu yang rapi, satu langkah demi satu langkah.',
     steps: [
       'Dengarkan dulu, jangan buru-buru mencari solusi',
       'Petakan kekacauannya',
@@ -78,14 +81,6 @@ const id = {
       'Buang yang tidak perlu',
       'Rapikan sampai detail terakhir',
     ],
-    dropHere: 'Taruh di sini',
-    tidyForMe: 'Rapikan untuk saya',
-    again: 'Ulangi',
-    yourPos: 'urutanmu',
-    mine: 'Ini urutan saya.',
-    sameStart: 'Kamu mulai dari tempat yang sama dengan saya: “{step}”.',
-    diffStart: 'Kamu mulai dari “{yours}”. Saya selalu mulai dari “{mine}”, karena masalah yang dipahami dengan benar sudah separuh selesai.',
-    matches: '{n} dari 5 langkahmu ada di posisi yang sama dengan saya.',
   },
 }
 
@@ -150,7 +145,7 @@ const en: typeof id = {
     talkForm: 'Or send a message through the form',
     sample: 'Sample content. Replaced by real data once Supabase is connected.',
     how: 'How',
-    howIntro: 'This part is messy on purpose. Drag the cards onto the dots along the line below, in your own order.',
+    howIntro: 'Scroll slowly. This is how a mess turns into something tidy, one step at a time.',
     steps: [
       'Listen first, don’t rush to a solution',
       'Map the mess',
@@ -158,14 +153,6 @@ const en: typeof id = {
       'Cut what isn’t needed',
       'Tidy it down to the last detail',
     ],
-    dropHere: 'Drop here',
-    tidyForMe: 'Tidy it for me',
-    again: 'Again',
-    yourPos: 'your order',
-    mine: 'This is my order.',
-    sameStart: 'You started where I do: “{step}”.',
-    diffStart: 'You started with “{yours}”. I always start with “{mine}”, because a problem understood properly is already half solved.',
-    matches: '{n} of your 5 steps sit where mine do.',
   },
 }
 

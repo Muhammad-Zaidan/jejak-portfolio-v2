@@ -191,6 +191,38 @@ export async function setBudget(f: FormData) {
   back(f)
 }
 
+const rupiah = (f: FormData, k: string) => {
+  const n = Number(s(f, k).replace(/[^\d]/g, ''))
+  if (!(n > 0)) throw new Error('Jumlah harus lebih dari 0.')
+  return n
+}
+const day = (f: FormData, k: string) => (/^\d{4}-\d{2}-\d{2}$/.test(s(f, k)) ? s(f, k) : null)
+
+export async function addIncome(f: FormData) {
+  const db = await requireOwner()
+  const d = Math.min(31, Math.max(1, Number(s(f, 'day')) || 25))
+  check((await db.from('incomes').insert({ name: s(f, 'name'), amount: rupiah(f, 'amount'), day: d, starts: day(f, 'starts') ?? today(), ends: day(f, 'ends') })).error)
+  back(f)
+}
+
+export async function deleteIncome(f: FormData) {
+  const db = await requireOwner()
+  check((await db.from('incomes').delete().eq('id', s(f, 'id'))).error)
+  back(f)
+}
+
+export async function addGoal(f: FormData) {
+  const db = await requireOwner()
+  check((await db.from('goals').insert({ name: s(f, 'name'), price: rupiah(f, 'price'), deadline: day(f, 'deadline') })).error)
+  back(f)
+}
+
+export async function deleteGoal(f: FormData) {
+  const db = await requireOwner()
+  check((await db.from('goals').delete().eq('id', s(f, 'id'))).error)
+  back(f)
+}
+
 // ── Calendar ────────────────────────────────────────────────────────────
 
 export async function addEvent(f: FormData) {
@@ -223,6 +255,7 @@ export async function saveSite(f: FormData) {
     github: url('github'),
     linkedin: url('linkedin'),
     instagram: url('instagram'),
+    whatsapp: url('whatsapp'),
     accent: f.get('accent_default') === 'on' ? '' : s(f, 'accent'),
     hide: sections.map(([id]) => id).filter((id) => !show.includes(id)),
     id: copy('id'),

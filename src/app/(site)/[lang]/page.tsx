@@ -7,11 +7,11 @@ import { Rail } from '@/components/rail'
 import { Scope } from '@/components/scope'
 import { Preloader } from '@/components/preloader'
 import { Scrub } from '@/components/scrub'
-import { Tidy } from '@/components/tidy'
+import { Process } from '@/components/process'
 import { categories, getSite, listProjects, listPublicEntries, readMinutes, tr, type Entry } from '@/lib/content'
 import { dict, hasLocale, type Locale } from '@/lib/i18n'
 import { configured } from '@/lib/supabase'
-import { pad } from '@/components/site'
+import { pad, socials } from '@/components/site'
 
 type Row = { href: string; title: string; meta: string; entry?: Entry }
 
@@ -146,13 +146,11 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
           </Rail>
         )}
 
-        {/* The one thing visitors do: tidy a deliberately messy part of the page. */}
+        {/* How I work, acted out by the page as the visitor scrolls. */}
         {shown('bagaimana') && (
         <Chapter id="bagaimana" label={h.how}>
           <p className="max-w-[34ch] text-[clamp(1.35rem,2.4vw,2rem)] leading-[1.25]">{h.howIntro}</p>
-          <div className="mt-10">
-            <Tidy steps={h.steps} t={h} />
-          </div>
+          <Process steps={h.steps} />
         </Chapter>
         )}
 
@@ -174,6 +172,9 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
           </a>
           <div className="mt-10 flex flex-wrap gap-x-10 gap-y-3 text-lg">
             <a className="link" href={`mailto:${site.email}`}>{site.email}</a>
+            {socials(site).map(([label, href]) => (
+              <a key={label} className="link" href={href} target="_blank" rel="noopener noreferrer">{label}</a>
+            ))}
             <Link className="link" href={`/${lang}/contact`}>{h.talkForm}</Link>
           </div>
         </section>

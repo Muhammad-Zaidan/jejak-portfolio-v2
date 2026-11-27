@@ -28,6 +28,7 @@ export type SiteData = {
   github?: string
   linkedin?: string
   instagram?: string
+  whatsapp?: string
   accent?: string
   hide?: string[]
   id?: Copy
@@ -44,8 +45,9 @@ export function mergeSite(data: SiteData, lang: 'id' | 'en', t: (typeof dict)['i
     name: pick(data.name, env.name),
     email: pick(data.email, env.email),
     github: pick(data.github, env.github),
-    linkedin: data.linkedin?.trim() ?? '',
-    instagram: data.instagram?.trim() ?? '',
+    linkedin: pick(data.linkedin, env.linkedin),
+    instagram: pick(data.instagram, env.instagram),
+    whatsapp: pick(data.whatsapp, env.whatsapp),
     accent: /^#[0-9a-f]{6}$/i.test(data.accent ?? '') ? data.accent! : '',
     hide: data.hide ?? [],
     now: copy.now?.trim() ?? '',
@@ -55,7 +57,7 @@ export function mergeSite(data: SiteData, lang: 'id' | 'en', t: (typeof dict)['i
       ...t.home,
       ...Object.fromEntries(copyKeys.filter((k) => k in t.home && filled(copy[k])).map((k) => [k, copy[k]])),
       words: pick(copy.words?.filter(([w]) => w.trim()), t.home.words),
-      steps: copy.steps?.filter((s) => s.trim()).length === 5 ? copy.steps : t.home.steps, // the tidy game needs exactly five
+      steps: copy.steps?.filter((s) => s.trim()).length === 5 ? copy.steps : t.home.steps, // the process scene has exactly five phases
     },
   }
 }

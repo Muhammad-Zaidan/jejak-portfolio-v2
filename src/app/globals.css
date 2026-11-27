@@ -483,30 +483,6 @@ html.lenis, html.lenis body { height: auto; }
 .v2 .post-card { border-radius: 1.25rem; }
 .v2 .post-thumb { border-radius: 0.85rem; }
 
-/* How: loose stickers that drift, a line of numbered stops that fills as they land. */
-.v2 .tidy-card { padding: 1rem 1.1rem; border-radius: 1.1rem; background: var(--bg); border: 1px solid var(--line); box-shadow: 0 1px 0 var(--line), 0 18px 40px -28px rgb(0 0 0 / 0.5); transition: border-color 200ms, box-shadow 300ms, translate 400ms cubic-bezier(.16, 1, .3, 1); }
-.v2 .tidy-card.is-loose:not(.is-dragging) { animation: bob 5s ease-in-out var(--bob, 0s) infinite; }
-.v2 .tidy-card.cursor-grab:hover { border-color: var(--orange); translate: 0 -3px; }
-.v2 .tidy-card.is-dragging { cursor: grabbing; box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.55); border-color: var(--orange); }
-@keyframes bob { 50% { translate: 0 -6px; } }
-@media (prefers-reduced-motion: reduce) { .v2 .tidy-card.is-loose { animation: none !important; } }
-.v2 .tidy-path { position: relative; }
-.v2 .tidy-line { position: absolute; left: 1.1rem; top: 1.1rem; bottom: 1.1rem; width: 2px; background: var(--line); border-radius: 2px; }
-.v2 .tidy-line span { display: block; width: 100%; height: calc(var(--filled, 0) * 100%); background: var(--orange); border-radius: inherit; transition: height 700ms cubic-bezier(.16, 1, .3, 1), width 700ms cubic-bezier(.16, 1, .3, 1); }
-.v2 .tidy-stops { display: grid; gap: 1rem; list-style: none; padding: 0; margin: 0; }
-.v2 .tidy-stop { position: relative; display: grid; grid-template-columns: 2.2rem 1fr; gap: 1rem; align-items: center; min-height: 4.2rem; }
-.v2 .tidy-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 2.2rem; aspect-ratio: 1; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); font-size: 0.85rem; color: var(--soft); transition: background 400ms, color 400ms, border-color 400ms, scale 400ms cubic-bezier(.16, 1, .3, 1); }
-.v2 .tidy-stop.is-full .tidy-dot { background: var(--orange); border-color: var(--orange); color: #fff; scale: 1.1; }
-.v2 .tidy-hint { border-radius: 999px; border: 1px dashed var(--line); padding: 0.7rem 1rem; color: var(--soft); font-size: 0.9rem; transition: border-color 200ms, background 200ms; }
-.v2 .tidy-stop.is-empty:hover .tidy-hint { border-color: var(--orange); background: color-mix(in srgb, var(--orange) 6%, transparent); }
-@media (min-width: 900px) {
-  .v2 .tidy-line { left: 1.1rem; right: 1.1rem; top: 1.1rem; bottom: auto; width: auto; height: 2px; }
-  .v2 .tidy-line span { width: calc(var(--filled, 0) * 100%); height: 100%; }
-  .v2 .tidy-stops { grid-template-columns: repeat(5, 1fr); gap: 1.25rem; }
-  .v2 .tidy-stop { grid-template-columns: 1fr; align-items: start; align-content: start; gap: 1rem; min-height: 11rem; }
-  .v2 .tidy-hint { text-align: center; padding-block: 2.2rem; border-radius: 1.1rem; }
-}
-
 /* Comments: soft cards, replies hang off a thin line, the author's answers carry the accent. */
 .v2 .comment-form { display: grid; gap: 0.6rem; }
 .v2 .comment-input { width: 100%; border: 1px solid var(--line); border-radius: 0.9rem; background: transparent; padding: 0.75rem 0.9rem; font: inherit; color: inherit; transition: border-color 150ms; resize: vertical; }
@@ -567,6 +543,8 @@ html.lenis, html.lenis body { height: auto; }
 .v2 .scope-screen { position: relative; border-radius: 1.4rem; border: 1px solid var(--line); background: radial-gradient(120% 120% at 50% 40%, color-mix(in srgb, var(--orange) 7%, var(--tint)), var(--tint)); overflow: hidden; aspect-ratio: 5 / 2.4; }
 .v2 .scope-screen svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .v2 .scope-grid { stroke: var(--fg); stroke-opacity: 0.08; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.v2 .scope-beam { position: absolute; inset: 0; width: 100%; height: 100%; }
+.v2 .scope-screen::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent 0 2px, color-mix(in srgb, var(--bg) 9%, transparent) 2px 3px); mix-blend-mode: multiply; }
 .v2 .scope-trace { fill: none; stroke: var(--orange); stroke-width: 2.2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .v2 .scope-glow { fill: none; stroke: var(--orange); stroke-width: 10; stroke-opacity: 0.16; vector-effect: non-scaling-stroke; filter: blur(4px); }
 .v2 .scope-readout { position: absolute; left: 1.4rem; bottom: 1.1rem; right: 1.4rem; display: grid; gap: 0.2rem; }
@@ -581,17 +559,16 @@ html.lenis, html.lenis body { height: auto; }
 .v2 .live-led { width: 0.55rem; aspect-ratio: 1; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 0 var(--orange); animation: led 2s ease-out infinite; }
 @keyframes led { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--orange) 60%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
 
-/* How: the toy's play area. Loose cards are positioned by the physics (transform), so they sit at the origin. */
-.v2 .toss { position: relative; height: 22rem; overflow: hidden; border-radius: 1.4rem; background: radial-gradient(90% 70% at 50% 100%, color-mix(in srgb, var(--orange) 6%, transparent), transparent); touch-action: pan-y; transition: height 600ms cubic-bezier(.16, 1, .3, 1); }
-.v2 .toss.is-done { height: 0; }
-.v2 .toss .tidy-card { position: absolute; left: 0; top: 0; width: min(44vw, 15rem); will-change: transform; animation: none; }
-.v2 .toss .tidy-card:active { cursor: grabbing; }
-.v2 .tidy-stop.is-near .tidy-hint { border-color: var(--orange); border-style: solid; background: color-mix(in srgb, var(--orange) 10%, transparent); scale: 1.04; }
-.v2 .tidy-stop.is-near .tidy-dot { background: var(--orange); color: #fff; border-color: var(--orange); }
-.v2 .tidy-hint { transition: border-color 200ms, background 200ms, scale 300ms cubic-bezier(.16, 1, .3, 1); }
-.v2 .tidy-path.is-done .tidy-dot { animation: pulse-dot 700ms cubic-bezier(.16, 1, .3, 1) both; }
-.v2 .tidy-path.is-done .tidy-stop:nth-child(2) .tidy-dot { animation-delay: 80ms; }
-.v2 .tidy-path.is-done .tidy-stop:nth-child(3) .tidy-dot { animation-delay: 160ms; }
-.v2 .tidy-path.is-done .tidy-stop:nth-child(4) .tidy-dot { animation-delay: 240ms; }
-.v2 .tidy-path.is-done .tidy-stop:nth-child(5) .tidy-dot { animation-delay: 320ms; }
-@keyframes pulse-dot { 40% { scale: 1.5; box-shadow: 0 0 0 10px color-mix(in srgb, var(--orange) 25%, transparent); } }
+
+/* How: the scroll-played process. The stage pins while its five steps play. */
+.v2 .process { position: relative; margin-top: 2.5rem; }
+.v2 .process-stage { position: sticky; top: 0; height: 100svh; display: grid; grid-template-rows: 1fr auto; gap: 1.5rem; padding-block: 8vh 6vh; }
+@media (min-width: 900px) { .v2 .process-stage { grid-template-rows: none; grid-template-columns: 1fr 19rem; align-items: center; padding-block: 10vh; } }
+.v2 .process-canvas { width: 100%; height: 100%; min-height: 0; }
+.v2 .process-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
+.v2 .process-steps li { display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.6rem; font-size: clamp(1.05rem, 1.5vw, 1.3rem); line-height: 1.3; color: var(--soft); opacity: 0.45; transition: opacity 500ms, color 500ms, translate 600ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .process-steps li.is-past { opacity: 0.7; }
+.v2 .process-steps li.is-on { color: var(--fg); opacity: 1; translate: 0.4rem 0; }
+.v2 .process-num { font-size: 0.85rem; padding-top: 0.25em; font-variant-numeric: tabular-nums; }
+.v2 .process-steps li.is-on .process-num { color: var(--orange); }
+@media (max-width: 899px) { .v2 .process-steps li:not(.is-on) { display: none; } }

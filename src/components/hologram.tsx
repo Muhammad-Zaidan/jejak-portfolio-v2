@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import type { ShaderMaterial } from 'three'
-import photo from '@/assets/foto-cutout.png'
+import photo from '@/assets/foto-cutout.webp'
 
 /**
  * The portrait photo, tilting a touch toward the pointer like a card.
@@ -29,6 +29,7 @@ export function Hologram({ hint }: { hint: string }) {
 
       const tex = await new T.TextureLoader().loadAsync(photo.src)
       if (dead) return renderer.dispose()
+      tex.anisotropy = renderer.capabilities.getMaxAnisotropy() // keeps the photo crisp when the card tilts
 
       // Trail: two low-res buffers take turns; each frame keeps most of the last one, lets it drift, and paints the new stroke.
       const rt = () => new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType })
@@ -252,9 +253,9 @@ export function Hologram({ hint }: { hint: string }) {
           look.y += look.vy * dt
         }
         // a flat photo: only a slight card-like tilt, so it never shows its edge
-        pivot.rotation.y = look.x * 0.07 + (calm ? 0 : Math.sin(t * 0.35) * 0.015)
+        pivot.rotation.y = look.x * 0.07
         pivot.rotation.x = -look.y * 0.04
-        pivot.position.y = base + (calm ? 0 : Math.sin(t * 0.8) * 0.02)
+        pivot.position.y = base
 
         renderer.render(scene, camera)
         canvas.classList.add('is-ready')

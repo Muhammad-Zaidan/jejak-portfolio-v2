@@ -31,6 +31,7 @@ export default async function SiteSettings({ searchParams }: PageProps<'/admin/s
           <Field name="github" label="GitHub" value={d.github ?? ''} placeholder="https://github.com/…" />
           <Field name="linkedin" label="LinkedIn" value={d.linkedin ?? ''} placeholder="https://linkedin.com/in/…" />
           <Field name="instagram" label="Instagram" value={d.instagram ?? ''} placeholder="https://instagram.com/…" />
+          <Field name="whatsapp" label="WhatsApp" value={d.whatsapp ?? ''} placeholder="https://wa.me/62…" />
         </div>
       </Section>
 
