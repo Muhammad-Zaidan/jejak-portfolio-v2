@@ -58,6 +58,7 @@ export function Footer({ lang, site }: { lang: Locale; site: Site }) {
           <a key={label} className="link" href={href} target="_blank" rel="noopener noreferrer">{label}</a>
         ))}
         <a className="link" href={`/${lang}/rss.xml`}>RSS</a>
+        <Link className="link" href={`/${lang}/privacy`}>{lang === 'id' ? 'Privasi' : 'Privacy'}</Link>
       </span>
     </footer>
   )

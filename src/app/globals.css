@@ -672,12 +672,26 @@ html, body { overflow-x: clip; }
 .v2 .show-inner:hover .show-arrow { background: var(--orange); border-color: var(--orange); color: #fff; rotate: -45deg; }
 .v2 .show-all { display: inline-block; margin-top: 2.5rem; font-size: 1.1rem; }
 @media (max-width: 760px) {
-  .v2 .show-card { top: calc(4.5rem + var(--i) * 0.7rem); }
-  .v2 .show-inner { grid-template-columns: 1fr; min-height: 0; border-radius: 1.4rem; }
-  .v2 .show-cover { aspect-ratio: 16 / 10; }
-  .v2 .show-title { margin-top: 0.25rem; font-size: 2.1rem; }
-  .v2 .show-excerpt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  /* phone: the photo is the card, text on a soft gradient over it, cards resting at slight angles like prints */
+  .v2 .showcase { gap: 1rem; }
+  .v2 .show-card { top: calc(4.75rem + var(--i) * 0.6rem); }
+  .v2 .show-inner { position: relative; display: block; min-height: 0; aspect-ratio: 4 / 5; max-height: 72svh; border-radius: 1.75rem; border: 0; rotate: calc((var(--i) - 0.5) * 1.6deg); box-shadow: 0 30px 60px -25px rgb(0 0 0 / 0.75); transition: rotate 600ms cubic-bezier(.16, 1, .3, 1), scale 600ms cubic-bezier(.16, 1, .3, 1); }
+  .v2 .show-card:nth-child(odd) .show-inner { rotate: -1.2deg; }
+  .v2 .show-card:nth-child(even) .show-inner { rotate: 1.4deg; }
+  .v2 .show-inner:active { scale: 0.98; rotate: 0deg; }
+  .v2 .show-cover { position: absolute; inset: 0; aspect-ratio: auto; }
+  .v2 .show-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgb(10 9 8 / 0.92) 8%, rgb(10 9 8 / 0.35) 50%, transparent 75%); }
+  .v2 .show-body { position: absolute; inset: 0; justify-content: flex-end; gap: 0.6rem; padding: 1.25rem 1.25rem 1.35rem; color: #f4f1ec; }
+  .v2 .show-top { position: absolute; top: 1rem; left: 1.1rem; right: 1.1rem; }
+  .v2 .show-num { background: rgb(10 9 8 / 0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 0.2rem 0.6rem; border-radius: 999px; }
+  .v2 .show-tags span { color: #f4f1ec; border-color: rgb(255 255 255 / 0.25); background: rgb(10 9 8 / 0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .v2 .show-tags span:nth-child(n + 3) { display: none; }
+  .v2 .show-title { margin: 0; font-size: 2.1rem; }
+  .v2 .show-excerpt { color: rgb(244 241 236 / 0.75); font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .v2 .show-cta { justify-content: space-between; margin-top: 0.4rem; }
+  .v2 .show-arrow { border-color: rgb(255 255 255 / 0.3); background: var(--orange); border-color: var(--orange); color: #fff; }
 }
+
 
 /* Writing on a phone: a tidy vertical list (square thumbnail, category, title, read time) instead of a sideways row. */
 @media (max-width: 899px) {
