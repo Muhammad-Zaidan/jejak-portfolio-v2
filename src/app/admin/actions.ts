@@ -259,7 +259,8 @@ export async function reviewTx(f: FormData) {
     // the ones already waiting from the same merchant get the same treatment
     check((await db.from('transactions').update({ note, category_id, reviewed: true }).eq('reviewed', false).ilike('merchant', `%${pattern.replace(/[%_]/g, '')}%`)).error)
   }
-  redirect('/admin/finance/review')
+  const to = s(f, 'to')
+  redirect(/^\/admin(\/|\?|$)/.test(to) ? to : '/admin/finance/review')
 }
 
 export async function acceptAllTx() {

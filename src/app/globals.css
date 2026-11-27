@@ -938,3 +938,12 @@ html, body { overflow-x: clip; }
 .admin .fin-archive > summary { cursor: pointer; list-style: none; padding: 0.8rem 1rem; border-radius: 1.1rem; border: 1px dashed var(--line); color: var(--soft); text-align: center; transition: color 150ms, border-color 150ms; }
 .admin .fin-archive > summary:hover { color: var(--fg); border-color: var(--fg); }
 .admin .fin-archive[open] > summary { border-style: solid; }
+
+/* an unnamed transaction opens a small form in place */
+.admin .fin-edit > summary { display: grid; gap: 0.1rem; cursor: pointer; list-style: none; }
+.admin .fin-edit > summary::-webkit-details-marker { display: none; }
+.admin .fin-edit .fin-flag { cursor: pointer; }
+.admin .fin-edit[open] .fin-flag { background: var(--orange); color: #fff; border-color: var(--orange); }
+.admin .fin-edit-form { display: grid; gap: 0.5rem; margin-top: 0.7rem; padding: 0.8rem; border-radius: 0.9rem; background: var(--tint); }
+.admin .fin-edit-form .check { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.admin .fin-row:has(.fin-edit[open]) { align-items: start; }

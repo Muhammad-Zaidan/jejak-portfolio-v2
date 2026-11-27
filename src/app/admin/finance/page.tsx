@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { summarize } from '@/lib/money'
 import { beforeNextPay, planFrom } from '@/lib/plan'
 import { idr, requireOwner, today } from '@/lib/owner'
-import { addAccount, addCategory, addGoal, addIncome, addTransaction, deleteGoal, deleteIncome, deleteTransaction, setBudget } from '../actions'
+import { addAccount, addCategory, addGoal, addIncome, addTransaction, deleteGoal, deleteIncome, deleteTransaction, reviewTx, setBudget } from '../actions'
 
 const shift = (m: string, by: number) => {
   const d = new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7) - 1 + by, 1))
@@ -83,10 +83,36 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
                   const inc = kind.get(t.category_id) === 'income'
                   return (
                     <li key={t.id} className="fin-row">
-                      <span className="fin-row-main">
-                        <span className="fin-row-title">{t.note || name.get(t.category_id)}{!t.reviewed && <span className="fin-flag">perlu judul</span>}</span>
-                        <span className="note">{name.get(t.category_id)} · {name.get(t.account_id)}</span>
-                      </span>
+                      {t.reviewed ? (
+                        <span className="fin-row-main">
+                          <span className="fin-row-title">{t.note || name.get(t.category_id)}</span>
+                          <span className="note">{name.get(t.category_id)} · {name.get(t.account_id)}</span>
+                        </span>
+                      ) : (
+                        // tap an unnamed transaction to name and file it right here
+                        <details className="fin-row-main fin-edit">
+                          <summary>
+                            <span className="fin-row-title">{t.note || t.merchant || name.get(t.category_id)}<span className="fin-flag">beri judul</span></span>
+                            <span className="note">{name.get(t.category_id)} · {name.get(t.account_id)}</span>
+                          </summary>
+                          <form action={reviewTx} className="fin-edit-form">
+                            <input type="hidden" name="id" value={t.id} />
+                            <input type="hidden" name="to" value={`/admin/finance?m=${m}`} />
+                            <input name="note" defaultValue={t.note} placeholder="Judul, mis. Makan siang" className="field" aria-label="Judul" required autoFocus />
+                            <select name="category_id" defaultValue={name.get(t.category_id) === 'Belum dikategorikan' && kind.get(t.category_id) === 'expense' ? usualCategory : t.category_id} className="field" aria-label="Kategori">
+                              {C.filter((c) => c.kind === kind.get(t.category_id)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                            {t.merchant && (
+                              <label className="check text-sm">
+                                <input type="checkbox" name="always" />
+                                Selalu begini untuk “{t.merchant.slice(0, 30)}”
+                                <input type="hidden" name="pattern" value={t.merchant.toLowerCase().slice(0, 40)} />
+                              </label>
+                            )}
+                            <button className="btn">Simpan</button>
+                          </form>
+                        </details>
+                      )}
                       <span className={`tabular-nums fin-row-amount ${inc ? 'fin-in' : ''}`}>{inc ? '+' : '−'}{idr(Number(t.amount))}</span>
                       <form action={deleteTransaction}>
                         <input type="hidden" name="id" value={t.id} /><input type="hidden" name="m" value={m} />
