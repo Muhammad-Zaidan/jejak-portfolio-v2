@@ -11,7 +11,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --paper: #121211;
     --surface: #1d1d1b;
     --ink: #ecebe6;
@@ -19,6 +19,14 @@
     --grid: rgb(236 235 230 / 0.05);
     --accent: #ff6b3d;
   }
+}
+:root[data-theme="dark"] {
+  --paper: #121211;
+  --surface: #1d1d1b;
+  --ink: #ecebe6;
+  --muted: #a3a09a;
+  --grid: rgb(236 235 230 / 0.05);
+  --accent: #ff6b3d;
 }
 
 @theme inline {
@@ -224,7 +232,7 @@ textarea.field { font-family: var(--font-mono); font-size: 0.9rem; line-height: 
   line-height: 1.6;
 }
 @media (prefers-color-scheme: dark) {
-  .v2 {
+  :root:not([data-theme="light"]) .v2 {
     --bg: #0f0f0e;
     --fg: #f1efea;
     --soft: #9b9891;
@@ -232,6 +240,14 @@ textarea.field { font-family: var(--font-mono); font-size: 0.9rem; line-height: 
     --tint: #1a1a18;
     --orange: #ff4a3f;
   }
+}
+:root[data-theme="dark"] .v2 {
+  --bg: #0f0f0e;
+  --fg: #f1efea;
+  --soft: #9b9891;
+  --line: rgb(241 239 234 / 0.14);
+  --tint: #1a1a18;
+  --orange: #ff4a3f;
 }
 /* The older sheet styles (.note, .spec, .article…) read these names; in v2 they take the v2 palette. */
 .v2 {
@@ -835,3 +851,11 @@ html, body { overflow-x: clip; }
   .v2 .talk-links { order: 1; min-width: 0; }
   .v2 .talk-link-value { font-size: 1rem; overflow-wrap: anywhere; }
 }
+
+/* theme: native controls follow the chosen theme; the switch itself */
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; } }
+:root[data-theme="dark"] { color-scheme: dark; }
+.theme-toggle { display: inline-grid; place-items: center; width: 2.4rem; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--line); color: var(--fg); background: transparent; transition: background 200ms, rotate 500ms cubic-bezier(.16, 1, .3, 1); }
+.theme-toggle:hover { background: var(--tint); rotate: 25deg; }
+.theme-toggle svg { width: 1.15rem; height: 1.15rem; }

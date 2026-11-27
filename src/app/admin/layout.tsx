@@ -8,6 +8,7 @@ import { signOut } from './actions'
 import { AdminNav } from './nav'
 import { CommandPalette } from './command'
 import { TabBar } from './tabbar'
+import { ThemeScript, ThemeToggle } from '@/components/theme'
 
 export const metadata: Metadata = {
   title: { default: 'Personal OS', template: '%s · Personal OS' },
@@ -23,7 +24,10 @@ export const instant = false
 
 export default function AdminLayout({ children }: LayoutProps<'/admin'>) {
   return (
-    <html lang="id" className={fontVars}>
+    <html lang="id" className={fontVars} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className="v2 admin min-h-dvh">
         <CommandPalette />
         <div className="mx-auto grid max-w-[1320px] gap-8 px-4 py-6 sm:px-8 lg:grid-cols-[14rem_1fr] lg:gap-14">
@@ -36,6 +40,7 @@ export default function AdminLayout({ children }: LayoutProps<'/admin'>) {
               <AdminNav />
             </Suspense>
             <div className="mt-6 hidden gap-2 lg:grid">
+              <ThemeToggle className="mb-2" />
               <Link href="/" className="note link w-fit">Lihat situs ↗</Link>
               <form action={signOut}><button className="note link">Keluar</button></form>
             </div>

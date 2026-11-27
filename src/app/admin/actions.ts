@@ -5,6 +5,7 @@ import { updateTag } from 'next/cache'
 import { createEvent, deleteEvent } from '@/lib/gcal'
 import { requireOwner, today } from '@/lib/owner'
 import { copyKeys, sections, type SiteData } from '@/lib/site'
+import { createClient } from '@supabase/supabase-js'
 import { sessionDb } from '@/lib/supabase'
 import { recordSignIn } from '@/lib/device'
 import { syncBankMail } from '@/lib/gmail'
@@ -26,20 +27,24 @@ export async function signInEmail(f: FormData) {
   const h = await headers()
   if (!/^\S+@\S+\.\S+$/.test(email)) redirect('/admin/login?e=email')
   const origin = h.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL
-  const db = await sessionDb()
-  const { error } = await db.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origin}/auth/callback` } })
+  // implicit flow: the link itself carries the session, so it works from any browser or device (a PKCE link only
+  // works in the browser that asked for it, which fails when the mail app opens links somewhere else)
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    auth: { flowType: 'implicit', persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  })
+  const { error } = await db.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origin}/admin/confirm`, shouldCreateUser: false } })
   redirect(error ? `/admin/login?e=send&m=${encodeURIComponent(error.message)}` : '/admin/login?sent=1')
 }
 
 /** After a passkey sign-in in the browser: confirm it is the owner (or sign straight out) and note the device. */
-export async function noteSignIn() {
+export async function noteSignIn(method: 'passkey' | 'email' = 'passkey') {
   const db = await sessionDb()
   const { data: ok } = await db.rpc('is_owner')
   if (!ok) {
     await db.auth.signOut()
     return false
   }
-  await recordSignIn(db, 'passkey')
+  await recordSignIn(db, method === 'email' ? 'email' : 'passkey')
   return true
 }
 

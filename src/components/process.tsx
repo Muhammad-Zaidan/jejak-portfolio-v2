@@ -52,9 +52,14 @@ export function Process({ steps }: { steps: string[] }) {
     const el = box.current!, cv = canvas.current!
     const ctx = cv.getContext('2d')!
     const dots = makeDots()
-    const css = getComputedStyle(cv)
-    const fg = css.getPropertyValue('--fg').trim() || '#eee'
-    const orange = css.getPropertyValue('--orange').trim() || '#ff5a1f'
+    let fg = '#eee', orange = '#ff5a1f'
+    const colours = () => {
+      const css = getComputedStyle(cv)
+      fg = css.getPropertyValue('--fg').trim() || fg
+      orange = css.getPropertyValue('--orange').trim() || orange
+    }
+    colours()
+    addEventListener('themechange', colours)
     let W = 0, H = 0, raf = 0, seen = false, shown = -1, smooth = 0
 
     const resize = () => {
@@ -135,6 +140,7 @@ export function Process({ steps }: { steps: string[] }) {
     return () => {
       io.disconnect()
       ro.disconnect()
+      removeEventListener('themechange', colours)
       cancelAnimationFrame(raf)
     }
   }, [steps.length])

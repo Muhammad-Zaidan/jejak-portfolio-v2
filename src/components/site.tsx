@@ -5,6 +5,7 @@ import type { Site } from '@/lib/site'
 import { readMinutes, tr, type Entry } from '@/lib/content'
 import { Cover } from './cover'
 import { LangSwitch } from './lang-switch'
+import { ThemeToggle } from './theme'
 import { Logo, LogoMark } from './logo'
 
 export const pad = 'px-5 sm:px-10'
@@ -26,6 +27,7 @@ export function Header({ lang, name }: { lang: Locale; name: string }) {
         ))}
         <Suspense fallback={<span>{lang.toUpperCase()}</span>}>
           <LangSwitch lang={lang} />
+          <ThemeToggle />
         </Suspense>
         {/* phones: the same links in a menu that opens without JavaScript */}
         <details className="mobile-menu sm:hidden">

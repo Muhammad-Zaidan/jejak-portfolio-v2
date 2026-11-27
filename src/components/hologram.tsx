@@ -162,6 +162,7 @@ export function Hologram({ hint }: { hint: string }) {
       theme()
       const scheme = matchMedia('(prefers-color-scheme: dark)')
       scheme.addEventListener('change', theme)
+      addEventListener('themechange', theme)
 
       const size = () => {
         const { width, height } = el.getBoundingClientRect()
@@ -277,6 +278,7 @@ export function Hologram({ hint }: { hint: string }) {
         io.disconnect()
         ro.disconnect()
         scheme.removeEventListener('change', theme)
+        removeEventListener('themechange', theme)
         zone.removeEventListener('pointermove', move)
         zone.removeEventListener('pointerdown', move)
         zone.removeEventListener('pointerleave', leave)

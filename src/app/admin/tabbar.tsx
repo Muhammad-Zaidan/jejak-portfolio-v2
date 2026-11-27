@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { items } from './nav'
+import { ThemeToggle } from '@/components/theme'
 
 const icon = {
   today: <path d="M4 7h16M4 7v12h16V7M8 3v4m8-4v4M8 12h3" />,
@@ -43,6 +44,7 @@ export function TabBar({ signOut }: { signOut: () => Promise<void> }) {
         </summary>
         <div className="sheet">
           {rest.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
+          <div className="flex items-center justify-between px-[0.9rem] py-2"><span>Tema</span><ThemeToggle /></div>
           <Link href="/">Lihat situs ↗</Link>
           <form action={signOut}><button>Keluar</button></form>
         </div>
