@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/rls.test.mjs tests/crypto.test.mjs tests/money.test.mjs tests/embed.test.mjs tests/marks.test.mjs tests/site.test.mjs tests/plan.test.mjs tests/insights.test.mjs tests/bankmail.test.mjs",
-    "db": "node --env-file=.env.local -e \"const u=process.env.SUPABASE_DB_URL;if(!u)throw new Error('Isi SUPABASE_DB_URL di .env.local');process.exit(require('child_process').spawnSync('npx supabase db push --include-seed --yes --db-url \\\"'+u+'\\\"',{stdio:'inherit',shell:true}).status)\""
+    "db": "node --env-file=.env.local -e \"const u=process.env.SUPABASE_DB_URL;if(!u)throw new Error('Isi SUPABASE_DB_URL di .env.local');process.exit(require('child_process').spawnSync('npx supabase db push --yes --db-url \\\"'+u+'\\\"',{stdio:'inherit',shell:true}).status)\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
