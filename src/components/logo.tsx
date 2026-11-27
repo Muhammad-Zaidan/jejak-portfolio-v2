@@ -1,19 +1,37 @@
-import Image from 'next/image'
+import type { CSSProperties } from 'react'
 
-/**
- * The JEJAK logo. The wordmark is drawn in the current text colour (white artwork would vanish on the light theme),
- * the disc keeps its own red. Numbers are the disc's place in public/brand/jejak.png.
- */
-export function Logo({ className }: { className?: string }) {
+// The JEJAK wordmark is public/brand/jejak-word.png (1200×333, letters in these columns); it is drawn in the current
+// text colour through a mask. The logogram is the wordmark's own J with the orange dot: the mark left behind.
+const LETTERS: [number, number][] = [[0, 146], [181, 346], [368, 514], [535, 781], [798, 1009]]
+const W = 1200
+
+/** Full logo: JEJAK with the dot floating over the K. `animated` plays the intro: letters rise, then the dot lands. */
+export function Logo({ className, animated }: { className?: string; animated?: boolean }) {
   return (
-    <span role="img" aria-label="Jejak" className={`relative inline-block aspect-[5833/1621] ${className ?? ''}`}>
-      <span className="logo-word absolute inset-0" aria-hidden />
-      <Image src="/brand/jejak-mark.png" alt="" width={256} height={256} className="absolute top-0 right-0 h-[47.8%] w-auto" />
+    <span role="img" aria-label="Jejak" className={`logo ${animated ? 'is-animated' : ''} ${className ?? ''}`}>
+      {animated ? (
+        LETTERS.map(([a, b], i) => (
+          <span
+            key={a}
+            className="logo-letter"
+            aria-hidden
+            style={{ left: `${(a / W) * 100}%`, width: `${((b - a) / W) * 100}%`, '--size': `${(W / (b - a)) * 100}%`, '--pos': `${(a / (W - (b - a))) * 100}%`, '--i': i } as CSSProperties}
+          />
+        ))
+      ) : (
+        <span className="logo-word" aria-hidden />
+      )}
+      <span className="logo-dot" aria-hidden />
     </span>
   )
 }
 
-/** Just the disc, for small spots. */
+/** Just the logogram, for small spots (footer, app icon). */
 export function LogoMark({ className }: { className?: string }) {
-  return <Image src="/brand/jejak-mark.png" alt="" aria-hidden width={256} height={256} className={className} />
+  return (
+    <span role="img" aria-label="Jejak" className={`logo-mark ${className ?? ''}`}>
+      <span className="logo-j" aria-hidden />
+      <span className="logo-dot" aria-hidden />
+    </span>
+  )
 }

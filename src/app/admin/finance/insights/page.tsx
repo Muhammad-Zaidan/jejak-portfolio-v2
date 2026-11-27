@@ -56,7 +56,7 @@ export default async function Insights() {
 
       <section className="card overflow-x-auto">
         <table className="w-full min-w-[34rem] text-left">
-          <thead className="note"><tr><th className="py-2 font-normal" /> {A.months.map((m) => <th key={m.month} className="text-right font-normal capitalize">{monthName(m.month, 'long')}</th>)}</tr></thead>
+          <thead className="note"><tr><th className="py-2 font-normal" />{A.months.map((m) => <th key={m.month} className="text-right font-normal capitalize">{monthName(m.month, 'long')}</th>)}</tr></thead>
           <tbody className="tabular-nums">
             {([['Pemasukan', (m: MonthStat) => m.income], ['Pengeluaran', (m: MonthStat) => m.expense], ['Sisa', (m: MonthStat) => m.net], ['Disisihkan', (m: MonthStat) => (m.income ? `${Math.round((m.net / m.income) * 100)}%` : '–')]] as const).map(([label, f]) => (
               <tr key={label} className="border-t border-ink/15">

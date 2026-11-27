@@ -12,7 +12,7 @@ export function Preloader({ name }: { name: string }) {
     try {
       sessionStorage.setItem('intro-seen', '1')
     } catch {}
-    const t = setTimeout(() => setGone(true), 2600)
+    const t = setTimeout(() => setGone(true), 3200)
     return () => clearTimeout(t)
   }, [])
   if (gone) return null
@@ -21,7 +21,7 @@ export function Preloader({ name }: { name: string }) {
       {/* runs before first paint: skip the intro on repeat visits without a flash */}
       <script dangerouslySetInnerHTML={{ __html: "try{sessionStorage.getItem('intro-seen')&&document.documentElement.classList.add('intro-seen')}catch(e){}" }} />
       <div className="preloader" aria-hidden>
-        <Logo className="preloader-mark" />
+        <Logo className="preloader-mark" animated />
         <p className="preloader-name">{name}</p>
       </div>
     </>

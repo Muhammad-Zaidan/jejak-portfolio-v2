@@ -20,19 +20,6 @@ function check(error: { message: string } | null) {
 
 // ── Auth ────────────────────────────────────────────────────────────────
 
-export async function signIn() {
-  const origin = (await headers()).get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL
-  const db = await sessionDb()
-  const { data, error } = await db.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${origin}/auth/callback`,
-    },
-  })
-  check(error)
-  redirect(data.url!)
-}
-
 /** Sign-in link by email: works before Google is set up. Only the owner's address gets past the callback. */
 export async function signInEmail(f: FormData) {
   const email = s(f, 'email')

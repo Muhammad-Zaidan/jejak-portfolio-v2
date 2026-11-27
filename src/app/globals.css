@@ -330,11 +330,24 @@ body:has(.home) > .site-header { position: absolute; inset-inline: 0; top: 0; }
   position: fixed; inset: 0; z-index: 100;
   display: grid; place-items: center;
   background: var(--bg, #0f0f0e); color: var(--fg, #f1efea);
-  animation: lift 0.9s cubic-bezier(0.76, 0, 0.24, 1) 1.5s forwards;
+  animation: lift 0.9s cubic-bezier(0.76, 0, 0.24, 1) 2.2s forwards;
 }
-.preloader-mark { width: min(22rem, 64vw); animation: fade 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both; }
-.preloader-mark img { animation: pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both; }
-.logo-word { background: currentColor; -webkit-mask: url(/brand/jejak-word.png) center / 100% 100% no-repeat; mask: url(/brand/jejak-word.png) center / 100% 100% no-repeat; }
+.preloader-mark { width: min(24rem, 66vw); }
+/* Logo: the wordmark through a mask (takes the text colour), the orange dot over the K. */
+.logo { position: relative; display: inline-block; aspect-ratio: 1200 / 333; }
+.logo-word { position: absolute; inset: 0; background: currentColor; -webkit-mask: url(/brand/jejak-word.png) center / 100% 100% no-repeat; mask: url(/brand/jejak-word.png) center / 100% 100% no-repeat; }
+.logo-dot { position: absolute; left: 85.75%; top: 13.5%; width: 6.25%; aspect-ratio: 1; border-radius: 50%; background: #ff4b2b; }
+.logo-mark { position: relative; display: inline-block; aspect-ratio: 1; }
+.logo-j { position: absolute; left: 12%; bottom: 8%; height: 72%; aspect-ratio: 707 / 1216; background: currentColor; -webkit-mask: url(/brand/jejak-j.png) center / contain no-repeat; mask: url(/brand/jejak-j.png) center / contain no-repeat; }
+.logo-mark .logo-dot { left: auto; right: 10%; top: 6%; width: 22%; }
+/* the intro: each letter rises out of a soft blur, then the dot drops in, lands, and leaves a ring behind */
+.logo-letter { position: absolute; top: 0; bottom: 0; background: currentColor; -webkit-mask: url(/brand/jejak-word.png) var(--pos) 0 / var(--size) 100% no-repeat; mask: url(/brand/jejak-word.png) var(--pos) 0 / var(--size) 100% no-repeat; animation: letter-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) calc(0.15s + var(--i) * 0.075s) both; }
+.logo.is-animated .logo-dot { animation: dot-drop 0.75s cubic-bezier(0.34, 1.4, 0.64, 1) 0.85s both; }
+.logo.is-animated .logo-dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #ff4b2b; animation: dot-ring 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.25s both; }
+@keyframes letter-in { from { transform: translateY(35%); opacity: 0; filter: blur(8px); } }
+@keyframes dot-drop { from { transform: translateY(-420%) scale(0.5); opacity: 0; } 60% { opacity: 1; } }
+@keyframes dot-ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(3.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .logo-letter, .logo.is-animated .logo-dot, .logo.is-animated .logo-dot::after { animation: none; } }
 .preloader-name { position: absolute; bottom: 2rem; font-size: 0.85rem; letter-spacing: 0.02em; animation: fade 0.6s ease 0.5s both; }
 .intro-seen .preloader { display: none; }
 @keyframes lift { to { transform: translateY(-100%); visibility: hidden; } }
@@ -607,3 +620,26 @@ html.lenis, html.lenis body { height: auto; }
 .tabbar-more .sheet a:active, .tabbar-more .sheet button:active { background: var(--tint); }
 .tabbar-more[open] summary { color: var(--fg); }
 @keyframes sheet-in { from { opacity: 0; translate: 0 8px; scale: 0.97; } }
+
+/* Login: its own quiet screen over the admin chrome, one clear way in. */
+.login { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; align-content: center; gap: 1.5rem; padding: max(1.5rem, env(safe-area-inset-top)) 1.25rem max(1.5rem, env(safe-area-inset-bottom)); background: radial-gradient(60% 50% at 50% 0%, color-mix(in srgb, var(--orange) 14%, transparent), transparent 70%), var(--bg); overflow-y: auto; }
+.login-card { width: min(100%, 24rem); display: grid; gap: 1rem; padding: 2rem 1.75rem 1.6rem; border-radius: 1.75rem; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 82%, var(--fg) 3%); box-shadow: 0 30px 80px -40px rgb(0 0 0 / 0.7); animation: login-in 600ms cubic-bezier(.16, 1, .3, 1) both; }
+.login-mark { width: 3.4rem; justify-self: center; color: var(--fg); padding: 0.55rem; border-radius: 1rem; background: linear-gradient(#232120, #0c0b0b); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); }
+.login-title { margin: 0.25rem 0 0; text-align: center; font-size: 1.75rem !important; font-weight: 600; letter-spacing: -0.02em; }
+.login-sub { margin: -0.6rem 0 0.4rem; text-align: center; color: var(--soft); font-size: 0.95rem; }
+.login-passkey { display: flex; width: 100%; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.95rem 1rem; border-radius: 1rem; background: var(--fg); color: var(--bg); font-weight: 600; font-size: 1rem; transition: background 160ms, scale 160ms; }
+.login-passkey svg { width: 1.35rem; height: 1.35rem; }
+.login-passkey:hover { background: var(--orange); color: #fff; }
+.login-passkey:active { scale: 0.98; }
+.login-passkey:disabled { opacity: 0.7; }
+.login-or { display: flex; align-items: center; gap: 0.75rem; color: var(--soft); font-size: 0.8rem; }
+.login-or::before, .login-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.login-email { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
+.login-email .field { border-radius: 0.9rem; }
+.login-email .btn { border-radius: 0.9rem; white-space: nowrap; }
+.login-hint { margin: 0; color: var(--soft); font-size: 0.8rem; text-align: center; line-height: 1.45; }
+.login-msg { margin: 0; padding: 0.7rem 0.9rem; border-radius: 0.9rem; background: var(--tint); font-size: 0.9rem; }
+.login-msg.is-error { color: var(--orange); background: color-mix(in srgb, var(--orange) 10%, transparent); }
+.login-back { color: var(--soft); font-size: 0.9rem; }
+.login-back:hover { color: var(--fg); }
+@keyframes login-in { from { opacity: 0; translate: 0 12px; scale: 0.985; } }
