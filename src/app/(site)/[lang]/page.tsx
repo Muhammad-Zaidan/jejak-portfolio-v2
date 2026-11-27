@@ -95,7 +95,7 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
         )}
         {shown('siapa') && <Traits words={h.words as [string, string][]} stories={h.stories as [string, string][]} hints={h.eggs} />}
 
-        {shown('apa') && (
+        {shown('apa') && projectRows.length > 0 && (
         <Chapter id="apa" label={h.what}>
           <p className="rise max-w-[30ch] text-[clamp(1.35rem,2.4vw,2rem)] leading-[1.25]">{h.whatIntro}</p>
           {demo && <p className="mt-3 text-sm text-[var(--soft)]">{h.sample}</p>}
