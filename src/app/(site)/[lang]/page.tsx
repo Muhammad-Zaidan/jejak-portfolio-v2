@@ -5,6 +5,7 @@ import { Marquee } from '@/components/marquee'
 import { Hologram } from '@/components/hologram'
 import { Rail } from '@/components/rail'
 import { Traits } from '@/components/traits'
+import { Talk } from '@/components/talk'
 import { Preloader } from '@/components/preloader'
 import { Scrub } from '@/components/scrub'
 import { Process } from '@/components/process'
@@ -13,7 +14,7 @@ import { dict, hasLocale, type Locale } from '@/lib/i18n'
 import { configured } from '@/lib/supabase'
 import { pad, socials } from '@/components/site'
 
-type Row = { href: string; title: string; meta: string; entry?: Entry }
+type Row = { href: string; title: string; meta: string; excerpt?: string; tags?: string[]; entry?: Entry }
 
 export default async function Home({ params }: PageProps<'/[lang]'>) {
   const { lang: raw } = await params
@@ -40,6 +41,8 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
         href: `/${lang}/writing/${p.slug}`,
         title: tr(p, 'title', lang),
         meta: p.tags.find((x) => x !== 'contoh') ?? p.published_at?.slice(0, 4) ?? '',
+        excerpt: tr(p, 'excerpt', lang),
+        tags: p.tags.filter((x) => x !== 'contoh').slice(0, 3),
         entry: p,
       }))
   const posts = entries.filter((e) => e.category !== 'project').slice(0, 8)
@@ -80,32 +83,35 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
           )}
         </Chapter>
         )}
-        {shown('siapa') && <Traits words={h.words as [string, string][]} />}
+        {shown('siapa') && <Traits words={h.words as [string, string][]} stories={h.stories} hints={h.eggs} />}
 
         {shown('apa') && (
         <Chapter id="apa" label={h.what}>
           <p className="rise max-w-[30ch] text-[clamp(1.35rem,2.4vw,2rem)] leading-[1.25]">{h.whatIntro}</p>
           {demo && <p className="mt-3 text-sm text-[var(--soft)]">{h.sample}</p>}
-          {/* Project titles float at different speeds; the field disappears when there are no projects. */}
+          {/* Selected work as a stack of large cards: each one slides up and settles over the last as you scroll. */}
           {projectRows.length > 0 && (
-            <ul className="mt-16 grid gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-3" aria-label={h.projects}>
-              {projectRows.map((r, i) => (
-                <li key={r.title} className="float peek" style={{ '--d': 30 + ((i * 47) % 110), marginTop: `${(i % 3) * 3}rem` } as CSSProperties}>
-                  {r.entry && (
-                    <span className="peek-img" aria-hidden>
-                      <Cover e={r.entry} label={t.categories.project} />
-                    </span>
-                  )}
-                  <Link href={r.href} className="group block">
-                    <span className="text-sm text-[var(--soft)]">{r.meta}</span>
-                    <span className="display-font mt-1 block text-[clamp(1.9rem,3.2vw,3rem)] leading-[1]! transition-colors group-hover:text-[var(--orange)]">
-                      {r.title}
-                      <span className="ml-2 inline-block opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">→</span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ol className="showcase" aria-label={h.projects}>
+                {projectRows.map((r, i) => (
+                  <li key={r.title} className="show-card" style={{ '--i': i } as CSSProperties}>
+                    <Link href={r.href} className="show-inner group">
+                      <span className="show-cover" aria-hidden>{r.entry ? <Cover e={r.entry} label={t.categories.project} /> : <span className="show-cover-empty">{r.title[0]}</span>}</span>
+                      <span className="show-body">
+                        <span className="show-top">
+                          <span className="show-num">{String(i + 1).padStart(2, '0')}</span>
+                          <span className="show-tags">{(r.tags?.length ? r.tags : [r.meta]).filter(Boolean).map((tag) => <span key={tag}>{tag}</span>)}</span>
+                        </span>
+                        <span className="show-title display-font">{r.title}</span>
+                        {r.excerpt && <span className="show-excerpt">{r.excerpt}</span>}
+                        <span className="show-cta">{h.viewProject} <span className="show-arrow" aria-hidden>→</span></span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+              <Link href={`/${lang}/projects`} className="show-all link">{t.allProjects} →</Link>
+            </>
           )}
         </Chapter>
         )}
@@ -163,18 +169,7 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
 
         {shown('bicara') && (
         <section id="bicara" className={`${pad} talk py-28 sm:py-40`}>
-          <p className="text-[var(--soft)]">{h.talkLine}</p>
-          <a href={`mailto:${site.email}`} className="display-font group mt-4 block text-[clamp(3.4rem,12vw,12rem)]">
-            {h.talk}
-            <span className="inline-block text-[var(--orange)] transition-transform duration-300 group-hover:translate-x-3">→</span>
-          </a>
-          <div className="mt-10 flex flex-wrap gap-x-10 gap-y-3 text-lg">
-            <a className="link" href={`mailto:${site.email}`}>{site.email}</a>
-            {socials(site).map(([label, href]) => (
-              <a key={label} className="link" href={href} target="_blank" rel="noopener noreferrer">{label}</a>
-            ))}
-            <Link className="link" href={`/${lang}/contact`}>{h.talkForm}</Link>
-          </div>
+          <Talk email={site.email} socials={socials(site)} formHref={`/${lang}/contact`} t={h} />
         </section>
         )}
       </div>

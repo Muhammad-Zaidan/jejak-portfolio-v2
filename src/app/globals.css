@@ -542,11 +542,12 @@ html.lenis, html.lenis body { height: auto; }
 .v2 .hero-role { position: absolute; right: 6%; top: 30%; z-index: 20; max-width: 12ch; font-size: clamp(1.6rem, 2.7vw, 2.8rem); line-height: 1.25; font-weight: 450; letter-spacing: -0.02em; }
 .v2 .hero-role::before { content: "↘"; display: block; margin-bottom: 2.2rem; font-size: 0.75em; }
 @media (max-width: 640px) {
-  .v2 .hero-locate { top: auto; bottom: 34%; font-size: 0.8rem; padding-left: 1.1rem; }
-  .v2 .hero-globe { width: 2.6rem; }
-  .v2 .hero-role { top: 15%; right: 1.25rem; font-size: 1.25rem; }
-  .v2 .hero-role::before { margin-bottom: 0.8rem; }
-  .v2 .hero-name { bottom: 22%; }
+  /* phone: the pill up top, the name low, the role under it, so nothing sits on the face */
+  .v2 .hero-locate { top: 15%; bottom: auto; font-size: 0.8rem; gap: 0.9rem; padding: 0.55rem 0.55rem 0.55rem 1.1rem; }
+  .v2 .hero-globe { width: 2.4rem; }
+  .v2 .hero-role { top: auto; bottom: 6%; left: 1.25rem; right: 1.25rem; max-width: none; font-size: 1.15rem; display: flex; gap: 0.6rem; align-items: baseline; }
+  .v2 .hero-role::before { margin: 0; color: var(--orange); }
+  .v2 .hero-name { bottom: 13%; }
 }
 @media (prefers-reduced-motion: reduce) { .v2 .hero-globe svg { animation: none; } }
 
@@ -586,15 +587,18 @@ html.lenis, html.lenis body { height: auto; }
 .v2 .trait-1 .trait-word span { transition: opacity 300ms calc(var(--i) * 45ms); }
 .v2 .trait-1:not(.is-on) .trait-word span { opacity: 0; }
 .v2 .trait-1:not(.is-on) { translate: 0 0; }
-/* hungry: as big and loud as the screen allows */
-.v2 .trait-2 .trait-word { font-family: var(--font-bricolage), sans-serif; font-weight: 800; font-stretch: 75%; font-variation-settings: 'wdth' 75; font-size: clamp(6rem, 26vw, 26rem); letter-spacing: -0.04em; text-transform: uppercase; color: var(--orange); text-shadow: none; }
-.v2 .trait-2:not(.is-on) { scale: 0.7; }
-.v2 .trait-2.is-past { scale: 1.4; }
-/* fun: letters that bounce in, each its own way */
-.v2 .trait-3 .trait-word { font-family: var(--font-bricolage), sans-serif; font-weight: 700; font-size: clamp(5rem, 18vw, 17rem); letter-spacing: -0.02em; }
-.v2 .trait-3.is-on .trait-word span { animation: hop 1.6s cubic-bezier(.3, 1.6, .5, 1) calc(var(--i) * 90ms) infinite alternate; }
-.v2 .trait-3 .trait-word span:nth-child(even) { color: var(--orange); }
-@keyframes hop { 0% { translate: 0 0.12em; rotate: -8deg; } 100% { translate: 0 -0.12em; rotate: 8deg; } }
+/* hungry: the site's own face, gaining weight as it arrives */
+.v2 .trait-2 .trait-word { font-family: var(--font-geist), sans-serif; font-weight: 200; font-size: clamp(4.6rem, 18vw, 17rem); letter-spacing: -0.05em; text-transform: uppercase; transition: font-weight 1400ms cubic-bezier(.16, 1, .3, 1), letter-spacing 1400ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .trait-2.is-on .trait-word { font-weight: 800; letter-spacing: -0.035em; }
+.v2 .trait-2 .trait-word > span:last-of-type { color: var(--orange); }
+.v2 .trait-2:not(.is-on) { scale: 0.92; }
+/* fun: the same face, letters with a gentle bounce, and a full stop that won't sit still */
+.v2 .trait-3 .trait-word { font-family: var(--font-geist), sans-serif; font-weight: 500; font-size: clamp(5rem, 19vw, 18rem); letter-spacing: -0.045em; }
+.v2 .trait-3 .trait-word::after { content: '.'; color: var(--orange); display: inline-block; animation: hop 1.2s cubic-bezier(.3, 1.6, .5, 1) infinite alternate; }
+.v2 .trait-3.is-on .trait-word span { animation: hop 2.4s cubic-bezier(.45, 0, .55, 1) calc(var(--i) * 120ms) infinite alternate; }
+.v2 .trait-word span { transition: translate 700ms cubic-bezier(.16, 1, .3, 1), rotate 700ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .trait-3 .trait-word.is-scattered span { animation: none; translate: var(--x) var(--y); rotate: var(--r); }
+@keyframes hop { 0% { translate: 0 0.04em; rotate: -3deg; } 100% { translate: 0 -0.04em; rotate: 3deg; } }
 .v2 .trait:not(.is-on):not(.trait-2):not(.trait-0) { translate: 0 2rem; }
 .v2 .trait.is-past:not(.trait-2):not(.trait-0) { translate: 0 -2rem; }
 @media (prefers-reduced-motion: reduce) { .v2 .trait-3.is-on .trait-word span { animation: none; } }
@@ -643,3 +647,92 @@ html.lenis, html.lenis body { height: auto; }
 .login-back { color: var(--soft); font-size: 0.9rem; }
 .login-back:hover { color: var(--fg); }
 @keyframes login-in { from { opacity: 0; translate: 0 12px; scale: 0.985; } }
+
+/* Nothing may widen the page sideways on a phone. */
+html, body { overflow-x: clip; }
+
+/* What: selected work as stacked cards that settle over each other while scrolling. */
+.v2 .showcase { list-style: none; margin: 3.5rem 0 0; padding: 0; display: grid; gap: 1.25rem; }
+.v2 .show-card { position: sticky; top: calc(5.5rem + var(--i) * 1.1rem); }
+.v2 .show-inner { display: grid; grid-template-columns: 1.1fr 1fr; min-height: min(68svh, 32rem); border-radius: 1.75rem; overflow: hidden; background: color-mix(in srgb, var(--bg) 88%, var(--fg) 5%); border: 1px solid var(--line); box-shadow: 0 -24px 60px -34px rgb(0 0 0 / 0.65); transition: border-color 300ms; }
+.v2 .show-inner:hover { border-color: color-mix(in srgb, var(--orange) 55%, transparent); }
+.v2 .show-cover { position: relative; overflow: hidden; background: var(--tint); }
+.v2 .show-cover .cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: scale 900ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .show-inner:hover .show-cover .cover { scale: 1.05; }
+.v2 .show-cover-empty { position: absolute; inset: 0; display: grid; place-items: center; font-size: 8rem; color: var(--orange); }
+.v2 .show-body { display: flex; flex-direction: column; gap: 1rem; padding: clamp(1.4rem, 3vw, 2.6rem); }
+.v2 .show-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.v2 .show-num { font-variant-numeric: tabular-nums; color: var(--orange); font-size: 0.95rem; }
+.v2 .show-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; }
+.v2 .show-tags span { border: 1px solid var(--line); border-radius: 999px; padding: 0.2rem 0.7rem; font-size: 0.8rem; color: var(--soft); }
+.v2 .show-title { margin-top: auto; font-size: clamp(2.2rem, 4.2vw, 4.2rem); line-height: 0.95 !important; }
+.v2 .show-excerpt { color: var(--soft); max-width: 38ch; font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.45; }
+.v2 .show-cta { display: inline-flex; align-items: center; gap: 0.75rem; font-size: 1rem; }
+.v2 .show-arrow { display: grid; place-items: center; width: 2.6rem; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--line); transition: background 300ms, color 300ms, border-color 300ms, rotate 400ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .show-inner:hover .show-arrow { background: var(--orange); border-color: var(--orange); color: #fff; rotate: -45deg; }
+.v2 .show-all { display: inline-block; margin-top: 2.5rem; font-size: 1.1rem; }
+@media (max-width: 760px) {
+  .v2 .show-card { top: calc(4.5rem + var(--i) * 0.7rem); }
+  .v2 .show-inner { grid-template-columns: 1fr; min-height: 0; border-radius: 1.4rem; }
+  .v2 .show-cover { aspect-ratio: 16 / 10; }
+  .v2 .show-title { margin-top: 0.25rem; font-size: 2.1rem; }
+  .v2 .show-excerpt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+}
+
+/* Writing on a phone: a tidy vertical list (square thumbnail, category, title, read time) instead of a sideways row. */
+@media (max-width: 899px) {
+  .v2 .rail:not(.is-pinned) .rail-track { flex-direction: column; align-items: stretch; overflow: visible; gap: 0; padding: 4.5rem 1.25rem 2rem; }
+  .v2 .rail-intro { flex: none; margin-bottom: 2rem; }
+  .v2 .rail-card { width: auto; display: grid; grid-template-columns: 6.25rem 1fr; grid-template-rows: auto auto 1fr; column-gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--line); translate: none !important; }
+  .v2 .rail-card:nth-child(n + 7) { display: none; } /* five posts, then "all writing" */
+  .v2 .rail-thumb { grid-row: 1 / span 3; aspect-ratio: 1; max-height: none; border-radius: 0.9rem; }
+  .v2 .rail-card > span:nth-child(2) { margin-top: 0; font-size: 0.8rem; }
+  .v2 .rail-card > span:nth-child(3) { margin-top: 0.3rem; font-size: 1.35rem; line-height: 1.1 !important; }
+  .v2 .rail-card > span:nth-child(4) { display: none; }
+  .v2 .rail-end { flex: none; flex-direction: row; display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+  .v2 .rail-end-circle { width: 3.2rem; font-size: 1.2rem; }
+  .v2 .rail-end > span:last-child { margin-top: 0; font-size: 1.5rem; }
+}
+
+/* Let's talk: a big invitation that fills orange letter by letter, quick actions, then profiles as full rows. */
+.v2 .talk-line { color: var(--soft); font-size: clamp(1.1rem, 1.6vw, 1.35rem); }
+.v2 .talk-big { display: block; margin-top: 0.5rem; font-size: clamp(3.6rem, 13vw, 13rem); line-height: 0.9 !important; }
+.v2 .talk-big span { display: inline-block; transition: color 300ms, translate 500ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .talk-big:hover span { color: var(--orange); translate: 0 -0.04em; }
+.v2 .talk-meta { display: flex; align-items: center; gap: 0.6rem; margin-top: 1.5rem; color: var(--soft); font-variant-numeric: tabular-nums; }
+.v2 .talk-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 2rem; }
+.v2 .talk-btn { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.95rem 1.4rem; border-radius: 999px; border: 1px solid var(--line); font-size: 1rem; transition: background 250ms, color 250ms, border-color 250ms, scale 250ms; }
+.v2 .talk-btn:hover { border-color: var(--fg); }
+.v2 .talk-btn:active { scale: 0.97; }
+.v2 .talk-btn.is-main { background: var(--orange); border-color: var(--orange); color: #fff; }
+.v2 .talk-btn.is-main:hover { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.v2 .talk-btn.is-quiet { color: var(--soft); }
+.v2 .talk-email { color: var(--soft); }
+.v2 .talk-socials { list-style: none; margin: 4rem 0 0; padding: 0; border-top: 1px solid var(--line); }
+.v2 .talk-socials a { position: relative; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 1.25rem; padding: 1.4rem 0.25rem; border-bottom: 1px solid var(--line); overflow: hidden; isolation: isolate; transition: color 400ms, padding 500ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .talk-socials a::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--orange); transform: scaleY(0); transform-origin: bottom; transition: transform 500ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .talk-socials a:hover { color: #fff; padding-inline: 1.25rem; }
+.v2 .talk-socials a:hover::before { transform: scaleY(1); }
+.v2 .talk-social-name { font-size: clamp(2rem, 5vw, 4.2rem); line-height: 1 !important; }
+.v2 .talk-social-handle { color: var(--soft); font-size: 1rem; transition: color 400ms; }
+.v2 .talk-socials a:hover .talk-social-handle { color: rgb(255 255 255 / 0.85); }
+.v2 .talk-social-arrow { font-size: 1.6rem; transition: rotate 500ms cubic-bezier(.16, 1, .3, 1); }
+.v2 .talk-socials a:hover .talk-social-arrow { rotate: 45deg; }
+@media (max-width: 640px) {
+  .v2 .talk-actions { display: grid; }
+  .v2 .talk-btn { justify-content: center; }
+  .v2 .talk-email { display: none; }
+  .v2 .talk-socials a { grid-template-columns: 1fr auto; padding-block: 1.1rem; }
+  .v2 .talk-social-handle { grid-column: 1; grid-row: 2; font-size: 0.85rem; margin-top: -0.6rem; }
+  .v2 .talk-social-arrow { grid-row: 1 / span 2; grid-column: 2; }
+}
+
+/* Who: the word is a button for its easter egg; a small story and a tiny hint sit under the line */
+.v2 .trait.is-on { pointer-events: auto; }
+.v2 .trait-word { background: none; border: 0; padding: 0; cursor: pointer; color: var(--fg); user-select: none; -webkit-user-select: none; touch-action: manipulation; position: relative; }
+.v2 .trait-story { max-width: 42ch; margin: 0; font-size: clamp(0.9rem, 1.2vw, 1rem); line-height: 1.5; color: var(--soft); opacity: 0.85; }
+.v2 .trait-hint { margin: 0; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); opacity: 0.55; }
+.v2 .trait-ruler { position: absolute; left: 0; right: 0; bottom: -0.9rem; height: 0; border-top: 1px solid var(--orange); font-family: var(--font-plex-mono), monospace; font-size: 0.8rem; letter-spacing: 0.04em; color: var(--orange); text-transform: none; text-align: center; padding-top: 0.35rem; animation: fade 300ms ease both; }
+.v2 .trait-ruler::before, .v2 .trait-ruler::after { content: ''; position: absolute; top: -6px; width: 1px; height: 11px; background: var(--orange); }
+.v2 .trait-ruler::before { left: 0; }
+.v2 .trait-ruler::after { right: 0; }

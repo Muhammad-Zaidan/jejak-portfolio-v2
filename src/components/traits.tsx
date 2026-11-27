@@ -14,10 +14,17 @@ const waves: ((x: number, t: number) => number)[] = [
  * huge and loud, fun bouncing letter by letter), with an electric signal running edge to edge behind it that changes
  * shape as the visitor scrolls. No buttons: the page tells it.
  */
-export function Traits({ words }: { words: [string, string][] }) {
+export function Traits({ words, stories, hints }: { words: [string, string][]; stories: string[]; hints: string[] }) {
   const box = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
   const [active, setActive] = useState(0)
+  // easter eggs: holding "calm" hushes the signal, feeding "hungry" grows it, "precise" measures itself, "fun" scatters
+  const hush = useRef(0)
+  const holding = useRef(false)
+  const fed = useRef(0)
+  const [feeds, setFeeds] = useState(0)
+  const [ruler, setRuler] = useState('')
+  const [burst, setBurst] = useState(0)
 
   useEffect(() => {
     const el = box.current!, cv = canvas.current!
@@ -51,7 +58,9 @@ export function Traits({ words }: { words: [string, string][] }) {
       const a = waves[i % waves.length], b = waves[Math.min(n - 1, i + 1) % waves.length]
 
       ctx.clearRect(0, 0, W, H)
-      const mid = H * 0.5, amp = Math.min(H * 0.32, 220)
+      hush.current += ((holding.current ? 1 : 0) - hush.current) * 0.06
+      const grow = 1 + Math.min(fed.current, 8) * 0.09 * (i === 2 ? 1 : 0)
+      const mid = H * 0.5, amp = Math.min(H * 0.32, 220) * (1 - hush.current * 0.97) * grow
       ctx.lineJoin = ctx.lineCap = 'round'
       ctx.globalCompositeOperation = 'lighter'
       for (const [width, alpha] of [[14, 0.07], [5, 0.16], [1.8, 0.95]] as const) {
@@ -97,16 +106,40 @@ export function Traits({ words }: { words: [string, string][] }) {
     <div ref={box} className="traits" style={{ height: `${words.length * 90 + 30}vh` }}>
       <div className="traits-stage">
         <canvas ref={canvas} className="traits-wave" aria-hidden />
-        {words.map(([word, line], i) => (
-          <div key={word} className={`trait trait-${i % 4} ${i === active ? 'is-on' : i < active ? 'is-past' : ''}`} aria-hidden={i !== active}>
-            <p className="trait-word">
-              {[...word].map((ch, j) => (
-                <span key={j} style={{ '--i': j } as CSSProperties}>{ch}</span>
-              ))}
-            </p>
-            <p className="trait-line">{line}</p>
-          </div>
-        ))}
+        {words.map(([word, line], i) => {
+          const egg = i % 4
+          const act = () => {
+            if (egg === 1) {
+              const el = document.getElementById(`trait-word-${i}`)
+              setRuler(el ? `${el.getBoundingClientRect().width.toFixed(2).replace('.', ',')} px` : '')
+            }
+            if (egg === 2) setFeeds((fed.current += 1))
+            if (egg === 3) setBurst((b) => b + 1)
+          }
+          return (
+            <div key={word} className={`trait trait-${egg} ${i === active ? 'is-on' : i < active ? 'is-past' : ''}`} aria-hidden={i !== active}>
+              <button
+                type="button"
+                id={`trait-word-${i}`}
+                className={`trait-word ${egg === 3 && burst % 2 ? 'is-scattered' : ''}`}
+                tabIndex={i === active ? 0 : -1}
+                onClick={act}
+                onPointerDown={() => egg === 0 && (holding.current = true)}
+                onPointerUp={() => (holding.current = false)}
+                onPointerLeave={() => (holding.current = false)}
+                onMouseEnter={() => egg === 1 && act()}
+              >
+                {[...word].map((ch, j) => (
+                  <span key={j} style={{ '--i': j, '--r': `${((j * 137 + burst * 61) % 90) - 45}deg`, '--x': `${((j * 53 + burst * 29) % 80) - 40}px`, '--y': `${((j * 71 + burst * 17) % 60) - 50}px` } as CSSProperties}>{ch}</span>
+                ))}
+                {egg === 1 && ruler && <span className="trait-ruler" aria-hidden>{ruler}</span>}
+              </button>
+              <p className="trait-line">{line}</p>
+              {stories[i] && <p className="trait-story">{stories[i]}</p>}
+              <p className="trait-hint">{egg === 2 && feeds > 0 ? hints[4]?.replace('{n}', String(feeds)) : hints[egg]}</p>
+            </div>
+          )
+        })}
         <p className="traits-count" aria-hidden>
           {String(active + 1).padStart(2, '0')} <span>/ {String(words.length).padStart(2, '0')}</span>
         </p>
