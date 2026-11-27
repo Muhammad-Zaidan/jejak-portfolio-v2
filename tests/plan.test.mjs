@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { averageSpend, incomeBetween, plan, planFrom } from '../src/lib/plan.ts'
+import { averageSpend, beforeNextPay, incomeBetween, plan, planFrom } from '../src/lib/plan.ts'
 
 const stipend = { amount: 3500000, day: 25, starts: '2026-01-01', ends: '2027-02-25' }
 
@@ -53,4 +53,14 @@ test('spending today comes out of today, not out of every remaining day', () => 
   const after = planFrom({ ...base, tx: [{ amount: 60000, date: '2026-11-27', account_id: 'a', category_id: 'makan' }] })
   assert.equal(after.perDay, before.perDay) // the daily figure holds
   assert.equal(after.leftToday, before.perDay - 60000)
+})
+
+test('the money needed to keep a daily budget until the day before the next pay day', () => {
+  assert.equal(beforeNextPay([stipend], '2026-11-27'), '2026-12-24')
+  assert.equal(beforeNextPay([stipend], '2026-11-24'), '2026-11-24') // pays tomorrow
+  assert.equal(beforeNextPay([stipend], '2027-02-26'), null) // ended
+  const p = plan({ today: '2026-11-27', balance: 100000, spend: 0, incomes: [stipend], goals: [], until: '2026-12-24' })
+  assert.equal(p.days, 28)
+  assert.equal(p.need(25000), 28 * 25000 - 100000)
+  assert.equal(p.need(1000), 0) // already covered
 })

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { eventDay, eventTime, listEvents, type CalEvent } from '@/lib/gcal'
 import { idr, requireOwner, today, TZ } from '@/lib/owner'
-import { planFrom } from '@/lib/plan'
+import { beforeNextPay, planFrom } from '@/lib/plan'
 import { addTransaction, quickCapture } from './actions'
 
 /**
@@ -38,7 +38,7 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
   const spentToday = (tx.data ?? []).filter((t) => t.date === d0).reduce((a, t) => a + Number(t.amount), 0)
   const budget = (budgets.data ?? []).reduce((a, b) => a + Number(b.amount), 0)
   const monthEnd = new Date(Date.UTC(+month.slice(0, 4), +month.slice(5, 7), 0)).toISOString().slice(0, 10)
-  const P = planFrom({ tx: allTx.data ?? [], categories: allCategories.data ?? [], accounts: allAccounts.data ?? [], incomes: incomes.data ?? [], goals: goals.data ?? [], today: d0, until: monthEnd })
+  const P = planFrom({ tx: allTx.data ?? [], categories: allCategories.data ?? [], accounts: allAccounts.data ?? [], incomes: incomes.data ?? [], goals: goals.data ?? [], today: d0, until: beforeNextPay(incomes.data ?? [], d0) ?? monthEnd })
   const answered = new Set((comments.data ?? []).filter((c) => c.by_owner && c.parent_id).map((c) => c.parent_id))
   const waiting = (comments.data ?? []).filter((c) => !c.by_owner && !answered.has(c.id))
   // the quick expense form starts on the account used last
@@ -105,7 +105,7 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
           <CardHead title="Uang bulan ini" href="/admin/finance" />
           <p className="note mt-3">Sisa jatah jajan hari ini</p>
           <p className={`text-4xl tabular-nums ${P.leftToday < 0 ? 'text-accent' : ''}`}>{idr(P.leftToday)}</p>
-          <p className="note">dari {idr(P.perDay)}/hari sampai akhir bulan, target tetap aman</p>
+          <p className="note">dari {idr(P.perDay)}/hari sampai {P.until === monthEnd ? 'akhir bulan' : 'gajian berikutnya'}, target tetap aman</p>
           <dl className="mt-4 grid grid-cols-2 gap-4">
             <div><dt className="note">Hari ini</dt><dd className="text-2xl">{idr(spentToday)}</dd></div>
             <div><dt className="note">Bulan ini</dt><dd className="text-2xl">{idr(spent)}</dd></div>

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { summarize } from '@/lib/money'
-import { planFrom } from '@/lib/plan'
+import { beforeNextPay, planFrom } from '@/lib/plan'
 import { idr, requireOwner, today } from '@/lib/owner'
 import { addAccount, addCategory, addGoal, addIncome, addTransaction, deleteGoal, deleteIncome, deleteTransaction, setBudget } from '../actions'
 
@@ -11,7 +11,7 @@ const shift = (m: string, by: number) => {
 
 export default async function Finance({ searchParams }: PageProps<'/admin/finance'>) {
   const db = await requireOwner()
-  const { m: raw, until: rawUntil } = await searchParams
+  const { m: raw, until: rawUntil, want: rawWant } = await searchParams
   const m = typeof raw === 'string' && /^\d{4}-\d{2}$/.test(raw) ? raw : today().slice(0, 7)
 
   const [accounts, categories, budgets, tx, incomes, goals] = await Promise.all([
@@ -32,12 +32,14 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
   const monthLabel = new Date(`${m}-01T00:00:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
   const ready = A.length > 0 && C.length > 0
 
-  // the plan: allowance until a chosen date (default: end of this month), goals, and recurring income
+  // the plan: allowance until a chosen date (default: the day before the next pay day), goals, and recurring income
   const now = today()
   const monthEnd = new Date(Date.UTC(+now.slice(0, 4), +now.slice(5, 7), 0)).toISOString().slice(0, 10)
-  const until = typeof rawUntil === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawUntil) && rawUntil >= now ? rawUntil : monthEnd
+  const until = typeof rawUntil === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawUntil) && rawUntil >= now ? rawUntil : (beforeNextPay(incomes.data!, now) ?? monthEnd)
   const P = planFrom({ tx: T, categories: C, accounts: A, incomes: incomes.data!, goals: goals.data!, today: now, until })
   const spend = P.spend
+  const want = Number(String(rawWant ?? '').replace(/[^\d]/g, '')) || 25000
+  const need = P.need(want)
   const longDate = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
@@ -70,11 +72,19 @@ export default async function Finance({ searchParams }: PageProps<'/admin/financ
               {spend === 0 && <> · belum ada data pengeluaran 3 bulan terakhir, jadi dana darurat masih 0</>}
             </p>
           </div>
-          <form className="flex items-end gap-2">
+          <form className="flex flex-wrap items-end gap-2">
             <input type="hidden" name="m" value={m} />
             <label className="grid gap-1"><span className="note">Sampai tanggal</span><input type="date" name="until" defaultValue={until} min={now} className="field" /></label>
+            <label className="grid gap-1"><span className="note">Mau jajan/hari (Rp)</span><input name="want" inputMode="numeric" defaultValue={want} className="field w-32!" /></label>
             <button className="btn btn-quiet">Hitung</button>
           </form>
+          <p className="sm:col-span-2 border-t border-ink/20 pt-4">
+            {need > 0 ? (
+              <>Supaya bisa jajan <b>{idr(want)}/hari</b> sampai {longDate(until)}, kamu perlu dapat tambahan <b className="text-accent">{idr(need)}</b> <span className="note">(sekitar {idr(need / P.days)}/hari), tanpa menyentuh dana darurat dan target.</span></>
+            ) : (
+              <>Jajan <b>{idr(want)}/hari</b> sampai {longDate(until)} sudah tertutup. <span className="note">Masih lebih {idr(P.spendable - want * P.days)}.</span></>
+            )}
+          </p>
         </div>
 
         <div className="grid gap-10 md:grid-cols-2">

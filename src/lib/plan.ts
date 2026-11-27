@@ -76,8 +76,29 @@ export function plan({ today, balance, spend, incomes, goals, until, reserveMont
 
   const days = Math.max(1, daysBetween(today, until) + 1) // today counts
   const setAside = planned.reduce((a, g) => a + g.monthly, 0)
-  const spendable = Math.max(0, Math.max(0, free) - planned.reduce((a, g) => a + g.fromSavings, 0) + incomeBetween(incomes, today, until) - (setAside * days) / MONTH) // never a negative allowance
-  return { reserve, free, setAside, goals: planned, until, days, spendable, perDay: spendable / days }
+  const left = Math.max(0, free) - planned.reduce((a, g) => a + g.fromSavings, 0) + incomeBetween(incomes, today, until) - (setAside * days) / MONTH
+  const spendable = Math.max(0, left) // never a negative allowance
+  return {
+    reserve, free, setAside, goals: planned, until, days, spendable, perDay: spendable / days,
+    /** Extra money needed to spend `perDay` every day until `until` and still keep the reserve and goals. */
+    need: (perDay: number) => Math.max(0, perDay * days - left),
+  }
+}
+
+/** The day before the next pay day of any running income, or null when none is coming. */
+export function beforeNextPay(incomes: Income[], today: string) {
+  let next: string | null = null
+  for (const inc of incomes)
+    for (let k = 0; k < 13; k++) {
+      const last = endOfMonth(today, k)
+      const pay = `${last.slice(0, 8)}${String(Math.min(inc.day, +last.slice(8))).padStart(2, '0')}`
+      if (inc.ends && pay > inc.ends) break
+      if (pay > today && pay >= inc.starts) {
+        if (!next || pay < next) next = pay
+        break
+      }
+    }
+  return next && iso(new Date(+date(next) - 864e5))
 }
 
 /**
