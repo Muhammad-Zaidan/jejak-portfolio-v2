@@ -1,5 +1,5 @@
 // Google Calendar over plain REST. Google stays the source of truth; nothing is copied to our DB.
-import { decrypt } from './crypto'
+import { accessToken } from './google'
 import { TZ, type Db } from './owner'
 
 const API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events'
@@ -10,22 +10,6 @@ export type CalEvent = {
   htmlLink: string
   start: { dateTime?: string; date?: string }
   end: { dateTime?: string; date?: string }
-}
-
-async function accessToken(db: Db): Promise<string | null> {
-  const { data } = await db.from('integrations').select('refresh_token_enc').eq('provider', 'google').maybeSingle()
-  if (!data) return null
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID ?? '',
-      client_secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-      refresh_token: decrypt(data.refresh_token_enc),
-      grant_type: 'refresh_token',
-    }),
-  })
-  if (!res.ok) throw new Error(`Google token refresh failed (${res.status}). Sign in again to reconnect the calendar.`)
-  return (await res.json()).access_token
 }
 
 async function call(db: Db, path: string, init?: RequestInit) {

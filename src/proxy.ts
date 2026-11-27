@@ -25,6 +25,9 @@ export async function proxy(req: NextRequest) {
   })
   // refreshes an expiring session; verifies the token locally where the project signs with asymmetric keys
   await db.auth.getClaims()
+  // a long-lived random id per browser, so sign-ins can be told apart by device
+  if (!req.cookies.get('os_device'))
+    res.cookies.set('os_device', crypto.randomUUID(), { httpOnly: true, secure: req.nextUrl.protocol === 'https:', sameSite: 'lax', path: '/', maxAge: 400 * 86400 })
   return res
 }
 

@@ -10,9 +10,11 @@ export const items = [
   ['/admin/entries?kind=notes', 'Catatan'],
   ['/admin/comments', 'Komentar'],
   ['/admin/finance', 'Keuangan'],
+  ['/admin/finance/insights', 'Analisis'],
   ['/admin/calendar', 'Kalender'],
   ['/admin/messages', 'Pesan'],
   ['/admin/site', 'Situs'],
+  ['/admin/devices', 'Perangkat'],
 ] as const
 
 export function AdminNav() {
@@ -25,6 +27,7 @@ export function AdminNav() {
     if (href.endsWith('kind=notes')) return path.startsWith('/admin/entries') && notes
     if (href.endsWith('category=project')) return path.startsWith('/admin/entries') && project
     if (href === '/admin/entries') return path.startsWith(href) && !notes && !project
+    if (href === '/admin/finance') return path === href
     return path.startsWith(href)
   }
   return (

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { eventDay, eventTime, listEvents, type CalEvent } from '@/lib/gcal'
 import { requireOwner, today, TZ } from '@/lib/owner'
 import { addEvent, removeEvent } from '../actions'
@@ -29,7 +30,7 @@ export default async function Calendar() {
       </form>
 
       {failure && <p role="alert" className="text-accent">{failure}</p>}
-      {!failure && !events && <p className="bg-surface p-4">Kalender belum terhubung. Keluar lalu masuk lagi dengan Google untuk memberi akses kalender.</p>}
+      {!failure && !events && <p className="bg-surface p-4">Kalender belum terhubung. <Link className="link" href="/admin/google" prefetch={false}>Hubungkan Google</Link> (sekali klik, sekalian untuk email transaksi bank).</p>}
 
       {events && (
         <div className="grid gap-6">

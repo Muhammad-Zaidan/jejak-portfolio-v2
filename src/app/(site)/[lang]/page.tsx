@@ -4,7 +4,7 @@ import { Cover } from '@/components/cover'
 import { Marquee } from '@/components/marquee'
 import { Hologram } from '@/components/hologram'
 import { Rail } from '@/components/rail'
-import { Scope } from '@/components/scope'
+import { Traits } from '@/components/traits'
 import { Preloader } from '@/components/preloader'
 import { Scrub } from '@/components/scrub'
 import { Process } from '@/components/process'
@@ -70,7 +70,7 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
 
         {shown('siapa') && (
         <Chapter id="siapa" label={h.who}>
-          {/* who I am in one line, then how I work, drawn as signals on an oscilloscope */}
+          {/* who I am in one line; the traits follow full width, one per screen */}
           <p className="rise display-font max-w-[24ch] text-[clamp(2rem,4vw,3.8rem)] leading-[1.08]!">{h.whoBody}</p>
           {now && (
             <p className="mt-8 flex items-center gap-3 text-[var(--soft)]">
@@ -78,11 +78,9 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
               {h.now}: <span className="text-[var(--fg)]">{now}</span>
             </p>
           )}
-          <div className="rise mt-14">
-            <Scope words={h.words as [string, string][]} />
-          </div>
         </Chapter>
         )}
+        {shown('siapa') && <Traits words={h.words as [string, string][]} />}
 
         {shown('apa') && (
         <Chapter id="apa" label={h.what}>

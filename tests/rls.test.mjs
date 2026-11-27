@@ -34,6 +34,10 @@ await db.exec(`
 await db.exec(readFileSync(new URL('../supabase/migrations/0004_writing.sql', import.meta.url), 'utf8'))
 await db.exec(readFileSync(new URL('../supabase/migrations/0005_comments.sql', import.meta.url), 'utf8'))
 await db.exec(readFileSync(new URL('../supabase/migrations/0006_plans.sql', import.meta.url), 'utf8'))
+await db.exec(readFileSync(new URL('../supabase/migrations/0007_sign_ins.sql', import.meta.url), 'utf8'))
+await db.exec(readFileSync(new URL('../supabase/migrations/0008_mail_import.sql', import.meta.url), 'utf8'))
+await db.exec("insert into tx_rules (pattern, category_id) select 'indomaret', id from categories limit 1;")
+await db.exec("insert into sign_ins (device, method) values ('device-0001', 'email');")
 await db.exec("insert into incomes (amount) values (3500000); insert into goals (name, price) values ('Printer 3D', 5000000);")
 
 async function as(role, email, sql) {
@@ -47,7 +51,7 @@ async function as(role, email, sql) {
   return res.rows
 }
 
-const privateTables = ['accounts', 'categories', 'transactions', 'budgets', 'integrations', 'messages', 'comment_emails', 'incomes', 'goals']
+const privateTables = ['accounts', 'categories', 'transactions', 'budgets', 'integrations', 'messages', 'comment_emails', 'incomes', 'goals', 'sign_ins', 'tx_rules']
 
 test('visitor sees only shared entries and visible projects', async () => {
   // 'shown' is the visible project carried over as a public article; the hidden one became a draft

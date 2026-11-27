@@ -1,5 +1,6 @@
 import { configured } from '@/lib/supabase'
 import { signIn, signInEmail } from '../actions'
+import { PasskeySignIn } from '../passkey'
 
 export const instant = false
 
@@ -16,6 +17,8 @@ export default async function Login({ searchParams }: PageProps<'/admin/login'>)
       {sent && <p role="status" className="mt-4">Link masuk sudah dikirim. Buka email Anda di perangkat ini.</p>}
       {configured ? (
         <div className="mt-8 grid gap-6">
+          <PasskeySignIn />
+          <p className="note -mt-3">Perangkat baru? Masuk sekali lewat email, lalu simpan passkey di Perangkat & keamanan.</p>
           <form action={signInEmail} className="grid gap-3">
             <label className="grid gap-1">
               <span className="note">Email pemilik</span>
@@ -25,7 +28,7 @@ export default async function Login({ searchParams }: PageProps<'/admin/login'>)
           </form>
           <form action={signIn}>
             <button className="btn btn-quiet">Masuk dengan Google</button>
-            <p className="note mt-2">Google juga menyambungkan Kalender. Butuh pengaturan Google di Supabase.</p>
+            
           </form>
         </div>
       ) : (

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
-import { encrypt } from '@/lib/crypto'
 import { sessionDb } from '@/lib/supabase'
 import { redirectTo } from '@/lib/url'
+import { recordSignIn } from '@/lib/device'
 
 export async function GET(req: NextRequest) {
   const to = (path: string) => redirectTo(req, path)
@@ -24,13 +24,7 @@ export async function GET(req: NextRequest) {
     return to('/admin/login?e=forbidden')
   }
 
-  // Google only sends a refresh token on consent; keep it (encrypted) for the calendar.
-  const refresh = data.session.provider_refresh_token
-  if (refresh) {
-    const { error: e } = await db
-      .from('integrations')
-      .upsert({ provider: 'google', refresh_token_enc: encrypt(refresh), updated_at: new Date().toISOString() })
-    if (e) console.error('saving Google token failed:', e.message)
-  }
+  await recordSignIn(db, code && data.session.provider_token ? 'google' : 'email')
+
   return to('/admin')
 }

@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { after } from 'next/server'
+import { syncBankMail } from '@/lib/gmail'
 import { eventDay, eventTime, listEvents, type CalEvent } from '@/lib/gcal'
 import { idr, requireOwner, today, TZ } from '@/lib/owner'
 import { beforeNextPay, planFrom } from '@/lib/plan'
@@ -16,7 +18,7 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
   const month = d0.slice(0, 7)
   const nextMonth = new Date(Date.UTC(+month.slice(0, 4), +month.slice(5, 7), 1)).toISOString().slice(0, 10)
 
-  const [events, tx, budgets, drafts, notes, comments, messages, accounts, categories, allTx, allAccounts, allCategories, incomes, goals] = await Promise.all([
+  const [events, tx, budgets, drafts, notes, comments, messages, accounts, categories, allTx, allAccounts, allCategories, incomes, goals, unclear] = await Promise.all([
     listEvents(db, d0, d1).catch((e: Error) => e),
     db.from('transactions').select('amount, date, account_id, categories!inner(kind)').eq('categories.kind', 'expense').gte('date', `${month}-01`).lt('date', nextMonth).order('created_at', { ascending: false }),
     db.from('budgets').select('amount').eq('month', `${month}-01`),
@@ -32,7 +34,10 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
     db.from('categories').select('id, kind'),
     db.from('incomes').select('amount, day, starts, ends'),
     db.from('goals').select('id, name, price, deadline'),
+    db.from('transactions').select('id', { count: 'exact', head: true }).eq('reviewed', false),
   ])
+  // new bank emails are read after this page is sent, so opening the app never waits on Gmail
+  after(() => syncBankMail(db).catch((e: Error) => console.error('bank mail sync:', e.message)))
 
   const spent = (tx.data ?? []).reduce((a, t) => a + Number(t.amount), 0)
   const spentToday = (tx.data ?? []).filter((t) => t.date === d0).reduce((a, t) => a + Number(t.amount), 0)
@@ -75,7 +80,7 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
           {captured && <p role="status" className="note">Tersimpan di Catatan.</p>}
         </form>
 
-        <form action={addTransaction} className="card grid gap-2">
+        <form id="catat" action={addTransaction} className="card grid gap-2">
           <input type="hidden" name="to" value="/admin?logged=1" />
           <p className="card-title">Catat pengeluaran</p>
           <div className="grid grid-cols-2 gap-2">
@@ -105,6 +110,9 @@ export default async function Today({ searchParams }: PageProps<'/admin'>) {
           <CardHead title="Uang bulan ini" href="/admin/finance" />
           <p className="note mt-3">Sisa jatah jajan hari ini</p>
           <p className={`text-4xl tabular-nums ${P.leftToday < 0 ? 'text-accent' : ''}`}>{idr(P.leftToday)}</p>
+          {(unclear.count ?? 0) > 0 && (
+            <Link href="/admin/finance/review" className="mt-2 flex items-center gap-2 text-sm"><span className="badge">{unclear.count}</span> transaksi dari email perlu judul →</Link>
+          )}
           <p className="note">dari {idr(P.perDay)}/hari sampai {P.until === monthEnd ? 'akhir bulan' : 'gajian berikutnya'}, target tetap aman</p>
           <dl className="mt-4 grid grid-cols-2 gap-4">
             <div><dt className="note">Hari ini</dt><dd className="text-2xl">{idr(spentToday)}</dd></div>

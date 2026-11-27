@@ -6,6 +6,8 @@ import { createEvent, deleteEvent } from '@/lib/gcal'
 import { requireOwner, today } from '@/lib/owner'
 import { copyKeys, sections, type SiteData } from '@/lib/site'
 import { sessionDb } from '@/lib/supabase'
+import { recordSignIn } from '@/lib/device'
+import { syncBankMail } from '@/lib/gmail'
 
 const s = (f: FormData, k: string) => String(f.get(k) ?? '').trim()
 const list = (v: string) => v.split(',').map((x) => x.trim()).filter(Boolean)
@@ -25,9 +27,6 @@ export async function signIn() {
     provider: 'google',
     options: {
       redirectTo: `${origin}/auth/callback`,
-      scopes: 'https://www.googleapis.com/auth/calendar.events',
-      // offline + consent so Google returns a refresh token for the calendar
-      queryParams: { access_type: 'offline', prompt: 'consent' },
     },
   })
   check(error)
@@ -43,6 +42,37 @@ export async function signInEmail(f: FormData) {
   const db = await sessionDb()
   const { error } = await db.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origin}/auth/callback` } })
   redirect(error ? `/admin/login?e=send&m=${encodeURIComponent(error.message)}` : '/admin/login?sent=1')
+}
+
+/** After a passkey sign-in in the browser: confirm it is the owner (or sign straight out) and note the device. */
+export async function noteSignIn() {
+  const db = await sessionDb()
+  const { data: ok } = await db.rpc('is_owner')
+  if (!ok) {
+    await db.auth.signOut()
+    return false
+  }
+  await recordSignIn(db, 'passkey')
+  return true
+}
+
+export async function renamePasskey(f: FormData) {
+  const db = await requireOwner()
+  check((await db.auth.passkey.update({ passkeyId: s(f, 'id'), friendlyName: s(f, 'name').slice(0, 120) || 'Passkey' })).error)
+  redirect('/admin/devices')
+}
+
+export async function deletePasskey(f: FormData) {
+  const db = await requireOwner()
+  check((await db.auth.passkey.delete({ passkeyId: s(f, 'id') })).error)
+  redirect('/admin/devices')
+}
+
+/** Forget a device: its history goes, so its next sign-in shows up as a new device. */
+export async function forgetDevice(f: FormData) {
+  const db = await requireOwner()
+  check((await db.from('sign_ins').delete().eq('device', s(f, 'device'))).error)
+  redirect('/admin/devices')
 }
 
 export async function signOut() {
@@ -221,6 +251,48 @@ export async function deleteGoal(f: FormData) {
   const db = await requireOwner()
   check((await db.from('goals').delete().eq('id', s(f, 'id'))).error)
   back(f)
+}
+
+// ── Bank email import ───────────────────────────────────────────────────
+
+/** Name and file one imported transaction; with "always", every later (and waiting) one from that merchant too. */
+export async function reviewTx(f: FormData) {
+  const db = await requireOwner()
+  const note = s(f, 'note').slice(0, 300)
+  const category_id = s(f, 'category_id')
+  check((await db.from('transactions').update({ note, category_id, reviewed: true }).eq('id', s(f, 'id'))).error)
+  const pattern = s(f, 'pattern').toLowerCase()
+  if (f.get('always') === 'on' && pattern.length >= 2) {
+    check((await db.from('tx_rules').upsert({ pattern, title: note.slice(0, 120), category_id }, { onConflict: 'pattern' })).error)
+    // the ones already waiting from the same merchant get the same treatment
+    check((await db.from('transactions').update({ note, category_id, reviewed: true }).eq('reviewed', false).ilike('merchant', `%${pattern.replace(/[%_]/g, '')}%`)).error)
+  }
+  redirect('/admin/finance/review')
+}
+
+export async function acceptAllTx() {
+  const db = await requireOwner()
+  check((await db.from('transactions').update({ reviewed: true }).eq('reviewed', false)).error)
+  redirect('/admin/finance/review')
+}
+
+export async function deleteRule(f: FormData) {
+  const db = await requireOwner()
+  check((await db.from('tx_rules').delete().eq('id', s(f, 'id'))).error)
+  redirect('/admin/finance/review')
+}
+
+export async function syncMailNow(f: FormData) {
+  const db = await requireOwner()
+  const r = await syncBankMail(db, { force: true })
+  const to = /^\/admin(\/|\?|$)/.test(s(f, 'to')) ? s(f, 'to') : '/admin/finance/review' // admin paths only
+  redirect(`${to}${to.includes('?') ? '&' : '?'}synced=${'added' in r ? r.added : r.skipped}`)
+}
+
+export async function disconnectGoogle() {
+  const db = await requireOwner()
+  check((await db.from('integrations').delete().eq('provider', 'google')).error)
+  redirect('/admin/devices')
 }
 
 // ── Calendar ────────────────────────────────────────────────────────────
