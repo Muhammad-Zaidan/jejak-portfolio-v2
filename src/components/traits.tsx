@@ -135,14 +135,18 @@ export function Traits({ words, stories, hints }: { words: [string, string][]; s
                 {egg === 1 && ruler && <span className="trait-ruler" aria-hidden>{ruler}</span>}
               </button>
               <p className="trait-line">{line}</p>
-              {stories[i] && (
-                // a small scene rather than a summary: when and where, then a few lines typed out word by word
-                <p className="trait-story">
-                  <span className="trait-when">{stories[i][0]}</span>
-                  {stories[i][1].split(' ').map((w, k) => <span key={k} className="trait-say" style={{ '--k': k } as CSSProperties}>{w} </span>)}
-                </p>
-              )}
-              <p className="trait-hint">{egg === 2 && feeds > 0 ? hints[4]?.replace('{n}', String(feeds)) : hints[egg]}</p>
+              {/* a field note in the opposite corner: where and when, the moment itself (key phrases set heavier), the hint */}
+              <div className="trait-note">
+                {stories[i] && (
+                  <>
+                    <p className="trait-when">{stories[i][0]}</p>
+                    <p className="trait-story">
+                      {stories[i][1].split(/(\*[^*]+\*)/).map((part, k) => (part.startsWith('*') ? <b key={k}>{part.slice(1, -1)}</b> : <span key={k}>{part}</span>))}
+                    </p>
+                  </>
+                )}
+                <p className="trait-hint">{egg === 2 && feeds > 0 ? hints[4]?.replace('{n}', String(feeds)) : hints[egg]}</p>
+              </div>
             </div>
           )
         })}
