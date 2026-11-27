@@ -27,9 +27,14 @@ export function rupiah(raw: string) {
 }
 
 const MONEY = /(?:Rp\.?|IDR)\s*([\d][\d.,]*)/i
-const AMOUNT_LABELS = [/total\s*(?:transaksi|bayar|pembayaran|transfer)?/i, /nominal\s*(?:transaksi|transfer|pembayaran)?/i, /jumlah\s*(?:transfer|pembayaran|transaksi|dana)?/i, /amount/i]
-const MERCHANT_LABELS = [/nama\s*merchant/i, /merchant/i, /nama\s*toko/i, /nama\s*penerima/i, /penerima/i, /tujuan/i, /dari/i, /pengirim/i, /keterangan/i, /berita/i, /deskripsi/i]
-const WHAT_LABELS = [/jenis\s*transaksi/i, /tipe\s*transaksi/i, /transaksi/i]
+const AMOUNT_LABELS = [/total\s*(?:transaksi|bayar|pembayaran|transfer|amount|payment)?/i, /nominal\s*(?:transaksi|transfer|pembayaran)?/i, /jumlah\s*(?:transfer|pembayaran|transaksi|dana)?/i, /amount/i]
+// most specific first; a bare "merchant" must not catch "Merchant PAN"
+const MERCHANT_LABELS = [/nama\s*merchant/i, /merchant\s*name/i, /nama\s*toko/i, /nama\s*penerima/i, /beneficiary\s*name/i, /penerima/i, /recipient/i, /tujuan/i, /merchant(?!\s*pan)/i, /dari/i, /pengirim/i, /keterangan/i, /berita/i, /deskripsi/i]
+const WHAT_LABELS = [/jenis\s*transaksi/i, /tipe\s*transaksi/i, /transfer\s*type/i, /transaction\s*type/i]
+// a completed transaction says so in the subject; announcements, promos and order updates do not
+const DONE = /berhasil|sukses|successful|transaksi|transaction|pembayaran|payment|transfer|top ?-?up|dana masuk|uang masuk|menerima|received|tarik tunai|debit|kredit|journal/i
+const NOT_DONE = /\bOTP\b|kode verifikasi|promo|cashback|e-?statement|rekening koran|gagal|failed|ditolak|informasi|pemberitahuan|pemeliharaan|riplay|syarat|ketentuan|permintaan|pengembalian|pesanan/i
+const numberish = (v: string) => /^(pan\s*)?[\d\s*x.-]+$/i.test(v)
 
 /** The value after a label: on the same line after ":" (or a tab), or on the next non-empty line. */
 function field(lines: string[], labels: RegExp[]) {
@@ -39,9 +44,11 @@ function field(lines: string[], labels: RegExp[]) {
       const m = l.match(new RegExp(`^\\s*${label.source}\\s*[:\\t]?\\s*(.*)$`, 'i'))
       if (!m) continue
       const rest = m[1].replace(/^[:\s]+/, '').trim()
-      if (rest) return rest
-      const next = lines.slice(i + 1).find((x) => x.trim())
-      if (next) return next.trim()
+      if (rest && !numberish(rest)) return rest
+      if (rest) continue
+      // the value may sit on a later line, after a line holding only ":"
+      const next = lines.slice(i + 1).find((x) => !/^[:\s]*$/.test(x))
+      if (next && !numberish(next)) return next.trim()
     }
   return ''
 }
@@ -61,8 +68,7 @@ export function parseBankMail(mail: Mail): Parsed | null {
   const bank = BANKS.find(([re]) => re.test(mail.from))?.[1]
   if (!bank) return null
   const all = `${mail.subject}\n${mail.text}`
-  if (/\bOTP\b|kode verifikasi|promo|cashback s\.d|e-?statement|rekening koran|gagal|ditolak/i.test(mail.subject)) return null
-  if (!/berhasil|sukses|transaksi|pembayaran|transfer|qris|top ?up|dana masuk|menerima|tarik tunai|debit|kredit/i.test(all)) return null
+  if (NOT_DONE.test(mail.subject) || !DONE.test(mail.subject)) return null
 
   const lines = mail.text.split(/\n/).map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean)
   let amount = 0
@@ -80,6 +86,9 @@ export function parseBankMail(mail: Mail): Parsed | null {
   const income = /dana masuk|transfer masuk|uang masuk|anda menerima|telah menerima|diterima|kredit|incoming|refund/i.test(all) && !/pembayaran|bayar ke|transfer ke|qris/i.test(mail.subject)
   const merchant = field(lines, income ? [/dari/i, /pengirim/i, /nama\s*pengirim/i, ...MERCHANT_LABELS] : MERCHANT_LABELS).replace(MONEY, '').slice(0, 200).trim()
   const what = (field(lines, WHAT_LABELS) || mail.subject).slice(0, 120)
+  // money moved between the owner's own accounts is neither spending nor income
+  const me = all.match(/(?:halo|hello|hai|hi)\s+([^,\n]+)/i)?.[1].trim().toUpperCase()
+  if (me && merchant.toUpperCase() === me) return null
   return { amount, kind: income ? 'income' : 'expense', merchant, bank, what }
 }
 

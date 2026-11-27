@@ -46,3 +46,22 @@ test('rules match on merchant or description, case-insensitively', () => {
   assert.equal(matchRule(rules, { merchant: 'WARUNG', what: 'Pembayaran QRIS' }).title, 'Jajan')
   assert.equal(matchRule(rules, { merchant: 'X', what: 'Transfer' }), undefined)
 })
+
+test('real Mandiri QRIS layout: the shop is under "Penerima", not "Merchant PAN"', () => {
+  const text = "Livin' by Mandiri\nPembayaran Berhasil\nHalo MUHAMMAD ZAIDAN,\nBerikut adalah detail transaksi Anda dengan QR:\nPenerima\nWarung Mang Udin\nKota Bekasi - ID\nTanggal 27 Nov 2026\nNominal Transaksi Rp 28.500,00\nNo. Referensi 123456789012\nMerchant PAN 9360091537400954095\nCustomer PAN 9360000812345678"
+  const p = parseBankMail({ from: "Livin' <noreply.livin@bankmandiri.co.id>", subject: 'Pembayaran Berhasil!', text })
+  assert.equal(p.merchant, 'Warung Mang Udin')
+  assert.equal(p.amount, 28500)
+})
+
+test('real BCA layout (English, colon on its own line); a transfer to yourself is skipped', () => {
+  const text = (name) => `Hello MUHAMMAD ZAIDAN,\nYou just made a transaction through myBCA.\nStatus\n:\nSuccessful\nTransfer Type\n:\nTransfer to BANK MANDIRI\nBeneficiary Name\n:\n${name}\nAmount\n:\nIDR 30,600.00`
+  assert.equal(parseBankMail({ from: 'BCA <bca@bca.co.id>', subject: 'Internet Transaction Journal', text: text('MUHAMMAD ZAIDAN') }), null)
+  const p = parseBankMail({ from: 'BCA <bca@bca.co.id>', subject: 'Internet Transaction Journal', text: text('TOKO SINAR') })
+  assert.deepEqual([p.merchant, p.amount, p.what], ['TOKO SINAR', 30600, 'Transfer to BANK MANDIRI'])
+})
+
+test('announcements and marketplace order updates are not transactions', () => {
+  assert.equal(parseBankMail({ from: 'Jago <info@jago.com>', subject: 'Informasi optimalisasi sistem', text: 'Transaksi menggunakan QRIS dan Debit Card Jago di atas Rp5 juta.' }), null)
+  assert.equal(parseBankMail({ from: 'Shopee <info@mail.shopee.co.id>', subject: 'Lihat hasil untuk permintaan 2610060VAW8NCST', text: 'Pengembalian Dana sebesar Rp 950,875.' }), null)
+})

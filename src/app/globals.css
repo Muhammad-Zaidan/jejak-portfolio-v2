@@ -750,3 +750,5 @@ html, body { overflow-x: clip; }
 .v2 .trait-ruler::before, .v2 .trait-ruler::after { content: ''; position: absolute; top: -6px; width: 1px; height: 11px; background: var(--orange); }
 .v2 .trait-ruler::before { left: 0; }
 .v2 .trait-ruler::after { right: 0; }
+
+@media (min-width: 1024px) { .tabbar { display: none; } }
