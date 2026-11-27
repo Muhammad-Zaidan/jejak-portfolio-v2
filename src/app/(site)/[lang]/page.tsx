@@ -47,6 +47,7 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
       }))
   const posts = entries.filter((e) => e.category !== 'project').slice(0, 8)
   const now = site.now || (demo ? 'Personal OS' : picked[0] ? tr(picked[0], 'title', lang) : null)
+  const nowHref = !site.now && picked[0] ? `/${lang}/writing/${picked[0].slug}` : `/${lang}/projects`
 
   return (
     <div className="home">
@@ -73,14 +74,23 @@ export default async function Home({ params }: PageProps<'/[lang]'>) {
 
         {shown('siapa') && (
         <Chapter id="siapa" label={h.who}>
-          {/* who I am in one line; the traits follow full width, one per screen */}
-          <p className="rise display-font max-w-[24ch] text-[clamp(2rem,4vw,3.8rem)] leading-[1.08]!">{h.whoBody}</p>
-          {now && (
-            <p className="mt-8 flex items-center gap-3 text-[var(--soft)]">
-              <span className="live-led" aria-hidden />
-              {h.now}: <span className="text-[var(--fg)]">{now}</span>
+          {/* who I am: a headline with serif accents, a quieter line set off to the side, and what is on the desk now */}
+          <div className="who-intro">
+            <p className="who-head display-font rise">
+              {h.whoBody.split(/(\*[^*]+\*)/).map((part, i) => (part.startsWith('*') ? <em key={i}>{part.slice(1, -1)}</em> : <span key={i}>{part}</span>))}
             </p>
-          )}
+            <p className="who-sub rise">{h.whoSub}</p>
+            {now && (
+              <Link href={nowHref} className="now-card">
+                <span className="now-eq" aria-hidden><i /><i /><i /><i /><i /></span>
+                <span className="now-text">
+                  <span className="now-label">{h.now}</span>
+                  <span className="now-title">{now}</span>
+                </span>
+                <span className="now-arrow" aria-hidden>↗</span>
+              </Link>
+            )}
+          </div>
         </Chapter>
         )}
         {shown('siapa') && <Traits words={h.words as [string, string][]} stories={h.stories as [string, string][]} hints={h.eggs} />}

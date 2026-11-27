@@ -13,7 +13,7 @@ export const sections = [
 ] as const
 
 /** Per-language copy the owner can override. */
-export const copyKeys = ['line', 'roles', 'now', 'whoBody', 'whatIntro', 'howIntro', 'whyText', 'whyAccent', 'talkLine', 'footer'] as const
+export const copyKeys = ['line', 'roles', 'now', 'whoBody', 'whoSub', 'whatIntro', 'howIntro', 'whyText', 'whyAccent', 'talkLine', 'footer'] as const
 type CopyKey = (typeof copyKeys)[number]
 
 export type Copy = Partial<Record<CopyKey, string>> & {

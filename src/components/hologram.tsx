@@ -178,8 +178,8 @@ export function Hologram({ hint }: { hint: string }) {
         // Stand the figure on the bottom edge at 86% of the hero; on phones higher and smaller so the text below stays clear.
         const view = 2 * camera.position.z * Math.tan(T.MathUtils.degToRad(camera.fov / 2))
         const phone = width < 640
-        const tall = (phone ? 0.56 : 0.86) * view
-        const lift = phone ? (176 / height) * view : 0
+        const tall = (phone ? 0.8 : 0.86) * view
+        const lift = phone ? (70 / height) * view : 0
         figure.scale.setScalar(tall / h)
         base = -view / 2 + lift + tall / 2
       }

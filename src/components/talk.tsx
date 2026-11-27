@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type Social = readonly [label: string, href: string]
 type Text = { talk: string; talkLine: string; talkForm: string; local: string; replies: string; copy: string; copied: string; chat: string }
@@ -27,6 +27,15 @@ export function Talk({ email, socials, formHref, t }: { email: string; socials: 
     return () => clearInterval(id)
   }, [])
   const wa = socials.find(([l]) => l === 'WhatsApp')?.[1]
+  // the round button leans toward the pointer, then springs back
+  const magnet = useRef<HTMLAnchorElement>(null)
+  const pull = (e: React.PointerEvent) => {
+    const el = magnet.current
+    if (!el || e.pointerType !== 'mouse') return
+    const r = el.getBoundingClientRect()
+    el.style.translate = `${(e.clientX - r.left - r.width / 2) * 0.25}px ${(e.clientY - r.top - r.height / 2) * 0.25}px`
+  }
+  const release = () => magnet.current && (magnet.current.style.translate = '0 0')
 
   return (
     <div className="talk-wrap">
@@ -39,23 +48,34 @@ export function Talk({ email, socials, formHref, t }: { email: string; socials: 
         {t.local} {time || '--.--'} WIB · {t.replies}
       </p>
       <div className="talk-actions">
-        {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="talk-btn is-main">{t.chat} <span aria-hidden>↗</span></a>}
-        <button
-          type="button"
-          className="talk-btn"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(email)
-              setCopied(true)
-              setTimeout(() => setCopied(false), 1800)
-            } catch {
-              location.href = `mailto:${email}`
-            }
-          }}
-        >
-          {copied ? t.copied : t.copy} <span className="talk-email">{email}</span>
-        </button>
-        <Link href={formHref} className="talk-btn is-quiet">{t.talkForm}</Link>
+        {wa && (
+          <a ref={magnet} href={wa} target="_blank" rel="noopener noreferrer" className="talk-orb" onPointerMove={pull} onPointerLeave={release}>
+            <span className="talk-orb-text">{t.chat}</span>
+            <span className="talk-orb-arrow" aria-hidden>↗</span>
+          </a>
+        )}
+        <div className="talk-links">
+          <button
+            type="button"
+            className="talk-link"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(email)
+                setCopied(true)
+                setTimeout(() => setCopied(false), 1800)
+              } catch {
+                location.href = `mailto:${email}`
+              }
+            }}
+          >
+            <span className="talk-link-label">{copied ? t.copied : t.copy}</span>
+            <span className="talk-link-value">{email}</span>
+          </button>
+          <Link href={formHref} className="talk-link">
+            <span className="talk-link-label">{t.talkForm}</span>
+            <span className="talk-link-value">→</span>
+          </Link>
+        </div>
       </div>
       <ul className="talk-socials">
         {socials.map(([label, href]) => (
