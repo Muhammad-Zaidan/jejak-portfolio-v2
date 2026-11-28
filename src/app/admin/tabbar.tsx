@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
-import { items } from './nav'
+import { groups } from './nav'
 import { ThemeToggle } from '@/components/theme'
 
 const icon = {
@@ -28,7 +28,6 @@ export function TabBar({ signOut }: { signOut: () => Promise<void> }) {
     if (sheet.current) sheet.current.open = false
   }, [path])
   const on = (href: string) => (href === '/admin' || href === '/admin/finance' ? path === href : path.startsWith(href))
-  const rest = items.filter(([href]) => !tabs.some(([t]) => t === href))
   return (
     <nav className="tabbar lg:hidden" aria-label="Navigasi">
       {tabs.map(([href, label, svg]) => (
@@ -43,10 +42,21 @@ export function TabBar({ signOut }: { signOut: () => Promise<void> }) {
           Lainnya
         </summary>
         <div className="sheet">
-          {rest.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
-          <div className="flex items-center justify-between px-[0.9rem] py-2"><span>Tema</span><ThemeToggle /></div>
-          <Link href="/">Lihat situs ↗</Link>
-          <form action={signOut}><button>Keluar</button></form>
+          {/* the same groups as the sidebar, minus what the tabs already show */}
+          {groups.map((g) => {
+            const rest = g.items.filter(([href]) => !tabs.some(([t]) => t === href))
+            return rest.length ? (
+              <div key={g.label || 'home'} className="sheet-group">
+                {g.label && <p className="sheet-label">{g.label}</p>}
+                {rest.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
+              </div>
+            ) : null
+          })}
+          <div className="sheet-group">
+            <div className="flex items-center justify-between px-[0.9rem] py-2"><span>Tema</span><ThemeToggle /></div>
+            <Link href="/">Lihat situs ↗</Link>
+            <form action={signOut}><button>Keluar</button></form>
+          </div>
         </div>
       </details>
     </nav>

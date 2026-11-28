@@ -39,9 +39,9 @@ export default function AdminLayout({ children }: LayoutProps<'/admin'>) {
             <Suspense>
               <AdminNav />
             </Suspense>
-            <div className="mt-6 hidden gap-2 lg:grid">
-              <ThemeToggle className="mb-2" />
-              <Link href="/" className="note link w-fit">Lihat situs ↗</Link>
+            <div className="admin-aside-foot hidden lg:flex">
+              <ThemeToggle />
+              <Link href="/" className="note link">Lihat situs ↗</Link>
               <form action={signOut}><button className="note link">Keluar</button></form>
             </div>
           </aside>

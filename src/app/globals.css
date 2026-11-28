@@ -420,11 +420,11 @@ body:has(.home) > .site-header { position: absolute; inset-inline: 0; top: 0; }
   letter-spacing: -0.02em;
 }
 .admin .note { font-size: 0.85rem; }
-.admin-nav { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 1.5rem; }
+.admin-nav { display: grid; gap: 1.1rem; margin-top: 1.75rem; }
 .admin-nav a { padding: 0.35rem 0.75rem; border-radius: 999px; color: var(--soft); transition: background 160ms ease, color 160ms ease; }
 .admin-nav a:hover { color: var(--fg); background: var(--tint); }
 .admin-nav a[aria-current="page"] { color: var(--fg); background: var(--tint); box-shadow: inset 3px 0 0 var(--orange); }
-@media (min-width: 1024px) { .admin-nav { display: grid; } }
+
 .admin .panel { background: var(--tint); border-radius: 1.25rem; padding: clamp(1.25rem, 3vw, 2rem); }
 .admin .field {
   background: var(--bg);
@@ -947,3 +947,12 @@ html, body { overflow-x: clip; }
 .admin .fin-edit-form { display: grid; gap: 0.5rem; margin-top: 0.7rem; padding: 0.8rem; border-radius: 0.9rem; background: var(--tint); }
 .admin .fin-edit-form .check { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 .admin .fin-row:has(.fin-edit[open]) { align-items: start; }
+
+/* sidebar groups: a small label over each, quiet spacing between them */
+.admin-nav-group { display: grid; gap: 0.1rem; }
+.admin-nav-label { margin: 0 0 0.3rem 0.75rem; font-family: var(--font-plex-mono), monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); opacity: 0.75; }
+.admin-nav a { display: block; }
+.admin-aside-foot { align-items: center; gap: 0.9rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.tabbar-more .sheet { max-height: 70svh; overflow-y: auto; }
+.tabbar-more .sheet-group + .sheet-group { margin-top: 0.3rem; padding-top: 0.3rem; border-top: 1px solid var(--line); }
+.tabbar-more .sheet-label { margin: 0.35rem 0.9rem 0.1rem; font-family: var(--font-plex-mono), monospace; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); }
