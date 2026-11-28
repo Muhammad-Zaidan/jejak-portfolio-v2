@@ -956,3 +956,7 @@ html, body { overflow-x: clip; }
 .tabbar-more .sheet { max-height: 70svh; overflow-y: auto; }
 .tabbar-more .sheet-group + .sheet-group { margin-top: 0.3rem; padding-top: 0.3rem; border-top: 1px solid var(--line); }
 .tabbar-more .sheet-label { margin: 0.35rem 0.9rem 0.1rem; font-family: var(--font-plex-mono), monospace; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); }
+
+/* the theme switch keeps its round size inside the phone sheet, where other buttons stretch full width */
+.tabbar-more .sheet .theme-toggle { width: 2.4rem; height: 2.4rem; padding: 0; flex: none; display: inline-grid; place-items: center; }
+.tabbar-more .sheet .theme-toggle svg { width: 1.15rem; height: 1.15rem; }
